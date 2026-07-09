@@ -46,7 +46,7 @@
     {
       "_id": "32crwwt7h",
       "createdAt": "2026-07-08T09:50:42.041Z",
-      "updatedAt": "2026-07-08T15:26:28.722Z",
+      "updatedAt": "2026-07-09T07:04:04.382Z",
       "userId": "v3jl1j48t",
       "aadhaarNumber": "656766755656",
       "panNumber": "PAN54337",
@@ -80,9 +80,9 @@
     {
       "_id": "szwc7jaff",
       "createdAt": "2026-07-08T09:50:42.037Z",
-      "updatedAt": "2026-07-08T16:39:33.726Z",
+      "updatedAt": "2026-07-09T07:04:04.387Z",
       "userId": "v3jl1j48t",
-      "balance": 120,
+      "balance": 390,
       "transactions": [
         {
           "amount": 270,
@@ -95,6 +95,12 @@
           "type": "debit",
           "description": "Withdrawal Request Submitted",
           "timestamp": "2026-07-08T16:39:33.724Z"
+        },
+        {
+          "amount": 270,
+          "type": "credit",
+          "description": "Earnings for Order #567890",
+          "timestamp": "2026-07-09T07:04:04.385Z"
         }
       ]
     }
@@ -105,7 +111,7 @@
       "customerId": "cust101",
       "vendorId": "vend202",
       "deliveryPartnerId": "32crwwt7h",
-      "status": "reached_customer",
+      "status": "delivered",
       "pickupOtp": "1234",
       "deliveryOtp": "5678",
       "pickupCoordinates": {
@@ -113,8 +119,8 @@
         "longitude": 77.5946
       },
       "deliveryCoordinates": {
-        "latitude": 12.9352,
-        "longitude": 77.6244
+        "latitude": 12.9716,
+        "longitude": 77.5946
       },
       "earnings": {
         "tripPay": 200,
@@ -128,9 +134,11 @@
       "pickupLocation": "Fresh Bites Restaurant, Indiranagar",
       "deliveryLocation": "45, 5th Cross, Koramangala, Bengaluru",
       "paymentMethod": "Online",
-      "updatedAt": "2026-07-09T04:55:26.821Z",
+      "updatedAt": "2026-07-09T07:04:04.378Z",
       "pickupPhoto": "",
-      "pickupTime": "2026-07-09T04:31:25.113Z"
+      "pickupTime": "2026-07-09T04:31:25.113Z",
+      "deliveryPhoto": "",
+      "deliveryTime": "2026-07-09T07:04:04.375Z"
     },
     {
       "_id": "ord55555678901234567890",
