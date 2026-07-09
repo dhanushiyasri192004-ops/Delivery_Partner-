@@ -31,8 +31,9 @@ const DashboardLayout = () => {
   const location = useLocation();
   const { user, profile } = useSelector((state) => state.auth);
 
-  const [shiftStatus, setShiftStatus] = useState(profile?.status === 'online' ? 'online' : 'offline');
-  const isOnline = shiftStatus === 'online';
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isOnline, setIsOnline] = useState(profile?.status === 'online');
+  const [shiftStatus, setShiftStatus] = useState('active'); // active, break, lunch
   const [showNotifications, setShowNotifications] = useState(false);
   const [showCameraModal, setShowCameraModal] = useState(false);
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
@@ -158,7 +159,7 @@ const DashboardLayout = () => {
       setCameraStream(null);
     }
     
-    setShiftStatus('online');
+    setIsOnline(true);
     setShowCameraModal(false);
   };
 
@@ -171,7 +172,8 @@ const DashboardLayout = () => {
   };
 
   const handleConfirmCheckOut = () => {
-    setShiftStatus('offline');
+    setIsOnline(false);
+    setShiftStatus('active');
     setShowCheckoutModal(false);
   };
 
@@ -404,80 +406,84 @@ const DashboardLayout = () => {
             </div>
 
             {/* Shift Availability Status Indicator */}
-            <div className="flex items-center gap-4 ml-2 select-none">
+            <div className="flex items-center gap-4 ml-2">
               <div className="text-right">
                 <div className="flex items-center gap-1.5 justify-end">
-                  <span className={`w-2.5 h-2.5 rounded-full ${
-                    shiftStatus === 'online' ? 'bg-green-500 animate-pulse' :
-                    shiftStatus === 'break' ? 'bg-orange-500 animate-pulse' :
-                    shiftStatus === 'lunch' ? 'bg-amber-500 animate-pulse' : 'bg-slate-400'
+                  <span className={`w-2 h-2 rounded-full ${
+                    !isOnline 
+                      ? 'bg-slate-400' 
+                      : shiftStatus === 'break' 
+                      ? 'bg-amber-500 animate-pulse' 
+                      : shiftStatus === 'lunch' 
+                      ? 'bg-orange-500 animate-pulse' 
+                      : 'bg-green-500 animate-pulse'
                   }`}></span>
-                  <span className="text-xs font-black text-slate-700">
-                    {shiftStatus === 'online' ? 'Online' :
-                     shiftStatus === 'break' ? 'On Break' :
-                     shiftStatus === 'lunch' ? 'On Lunch Break' : 'Offline'}
+                  <span className="text-xs font-bold text-slate-700">
+                    {!isOnline 
+                      ? 'Offline' 
+                      : shiftStatus === 'break' 
+                      ? 'On Break' 
+                      : shiftStatus === 'lunch' 
+                      ? 'On Lunch' 
+                      : 'Online'}
                   </span>
                 </div>
-                <div className="text-[8px] text-slate-450 font-bold uppercase mt-0.5 tracking-wider">
-                  {shiftStatus === 'online' ? 'SHIFT STARTED: 08:00 AM' :
-                   shiftStatus === 'break' ? 'SHIFT PAUSED' :
-                   shiftStatus === 'lunch' ? 'LUNCH PAUSE ACTIVE' : 'SHIFT NOT STARTED'}
+                <div className="text-[8px] text-slate-400 font-bold uppercase mt-0.5 tracking-wider">
+                  {!isOnline 
+                    ? 'SHIFT NOT STARTED' 
+                    : shiftStatus === 'break' 
+                    ? 'SHORT REST IN PROGRESS' 
+                    : shiftStatus === 'lunch' 
+                    ? 'LUNCH BREAK IN PROGRESS' 
+                    : 'SHIFT STARTED: 08:00 AM'}
                 </div>
               </div>
 
-              {/* Dynamic Buttons based on status */}
-              <div className="flex items-center gap-1.5">
-                {shiftStatus === 'offline' && (
+              {/* Break and Lunch Action Buttons when Online */}
+              {isOnline && shiftStatus === 'active' && (
+                <div className="flex gap-2">
                   <button 
-                    onClick={toggleOnlineStatus}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-full text-xs font-black shadow-xs transition-all active:scale-95"
+                    onClick={() => setShiftStatus('break')}
+                    className="bg-amber-50 hover:bg-amber-100 text-amber-700 px-3.5 py-1.5 rounded-full text-[10px] font-black border border-amber-250 transition-all active:scale-95 flex items-center gap-1"
+                    title="Take a short coffee break"
                   >
-                    Check In
+                    ☕ Break
                   </button>
-                )}
+                  <button 
+                    onClick={() => setShiftStatus('lunch')}
+                    className="bg-orange-50 hover:bg-orange-100 text-orange-700 px-3.5 py-1.5 rounded-full text-[10px] font-black border border-orange-250 transition-all active:scale-95 flex items-center gap-1"
+                    title="Take lunch break"
+                  >
+                    🍱 Lunch
+                  </button>
+                </div>
+              )}
 
-                {shiftStatus === 'online' && (
-                  <>
-                    <button 
-                      onClick={() => setShiftStatus('lunch')}
-                      className="bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 px-3.5 py-2 rounded-full text-xs font-black transition-all"
-                      title="Start Lunch Break"
-                    >
-                      🍱 Lunch
-                    </button>
-                    <button 
-                      onClick={() => setShiftStatus('break')}
-                      className="bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 px-3.5 py-2 rounded-full text-xs font-black transition-all"
-                      title="Start Coffee Break"
-                    >
-                      ☕ Break
-                    </button>
-                    <button 
-                      onClick={toggleOnlineStatus}
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full text-xs font-black shadow-xs transition-all active:scale-95"
-                    >
-                      Check Out
-                    </button>
-                  </>
-                )}
+              {isOnline && shiftStatus === 'break' && (
+                <button 
+                  onClick={() => setShiftStatus('active')}
+                  className="bg-green-600 hover:bg-green-700 text-white px-4 py-1.5 rounded-full text-[10px] font-black shadow-sm transition-all active:scale-95 flex items-center gap-1"
+                >
+                  End Break
+                </button>
+              )}
 
-                {(shiftStatus === 'break' || shiftStatus === 'lunch') && (
-                  <>
-                    <button 
-                      onClick={() => setShiftStatus('online')}
-                      className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-full text-xs font-black shadow-xs transition-all active:scale-95"
-                    >
-                      Resume Shift
-                    </button>
-                    <button 
-                      onClick={toggleOnlineStatus}
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full text-xs font-black shadow-xs transition-all active:scale-95"
-                    >
-                      Check Out
-                    </button>
-                  </>
-                )}
-              </div>
+              {isOnline && shiftStatus === 'lunch' && (
+                <button 
+                  onClick={() => setShiftStatus('active')}
+                  className="bg-green-600 hover:bg-green-700 text-white px-4 py-1.5 rounded-full text-[10px] font-black shadow-sm transition-all active:scale-95 flex items-center gap-1"
+                >
+                  End Lunch
+                </button>
+              )}
+
+              {/* Check In / Check Out Action Button */}
+              <button 
+                onClick={toggleOnlineStatus}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-full text-xs font-extrabold shadow-sm transition-all active:scale-95"
+              >
+                {isOnline ? 'Check Out' : 'Check In'}
+              </button>
             </div>
           </div>
         </header>
