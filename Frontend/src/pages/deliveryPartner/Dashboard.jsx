@@ -604,13 +604,34 @@ const Dashboard = () => {
             ) : (
               <div className="px-6 py-12 text-center space-y-3">
                 <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mx-auto">
-                  <Compass className="h-6 w-6 text-slate-300 animate-spin" />
+                  <Compass className={`h-6 w-6 text-slate-300 ${partnerStatus === 'break' || partnerStatus === 'lunch' ? '' : 'animate-spin'}`} />
                 </div>
-                <p className="text-slate-400 text-sm font-medium">Waiting for next dispatch...</p>
-                <div className="inline-flex items-center gap-2 bg-green-50 border border-green-100 text-green-700 px-3 py-1.5 rounded-full text-xs font-bold">
-                  <span className="w-2 h-2 rounded-full bg-green-500 animate-ping"></span>
-                  Active on Dispatch Radar
-                </div>
+                
+                {partnerStatus === 'break' ? (
+                  <>
+                    <p className="text-slate-450 text-sm font-semibold">Shift paused for short rest...</p>
+                    <div className="inline-flex items-center gap-2 bg-amber-50 border border-amber-100 text-amber-700 px-3 py-1.5 rounded-full text-xs font-bold">
+                      <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                      On Break
+                    </div>
+                  </>
+                ) : partnerStatus === 'lunch' ? (
+                  <>
+                    <p className="text-slate-450 text-sm font-semibold">Shift paused for lunch break...</p>
+                    <div className="inline-flex items-center gap-2 bg-orange-50 border border-orange-100 text-orange-700 px-3 py-1.5 rounded-full text-xs font-bold">
+                      <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span>
+                      Lunch Break
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-slate-400 text-sm font-medium">Waiting for next dispatch...</p>
+                    <div className="inline-flex items-center gap-2 bg-green-50 border border-green-100 text-green-700 px-3 py-1.5 rounded-full text-xs font-bold">
+                      <span className="w-2 h-2 rounded-full bg-green-500 animate-ping"></span>
+                      Active on Dispatch Radar
+                    </div>
+                  </>
+                )}
               </div>
             )}
         </div>

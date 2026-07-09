@@ -122,12 +122,77 @@ const getDashboardData = async (req, res, next) => {
  */
 const updateStatus = async (req, res, next) => {
   try {
-    const { status } = req.body;
-    const partner = await DeliveryPartner.findOneAndUpdate(
-      { userId: req.user.id },
-      { status },
-      { new: true }
-    );
+    const { status } = req.body; // online, offline, break, lunch
+    const now = new Date();
+    
+    // 1. Mock DB Mode handler
+    if (!getDbConnected()) {
+      const partner = mockDb.findOne('deliveryPartners', p => p.userId === req.user.id);
+      if (!partner) {
+        return res.status(404).json({ success: false, message: 'Delivery partner profile not found' });
+      }
+
+      const prevStatus = partner.status || 'offline';
+      let updates = { status };
+
+      if (status === 'online') {
+        updates.isAvailableForOrders = true;
+        if (prevStatus === 'offline') {
+          updates.shiftStartTime = now.toISOString();
+        } else if (prevStatus === 'break') {
+          updates.breakEndTime = now.toISOString();
+        } else if (prevStatus === 'lunch') {
+          updates.lunchEndTime = now.toISOString();
+        }
+      } else if (status === 'break') {
+        updates.isAvailableForOrders = false;
+        updates.breakStartTime = now.toISOString();
+      } else if (status === 'lunch') {
+        updates.isAvailableForOrders = false;
+        updates.lunchStartTime = now.toISOString();
+      } else if (status === 'offline') {
+        updates.isAvailableForOrders = false;
+        updates.shiftEndTime = now.toISOString();
+      }
+
+      const updated = mockDb.updateById('deliveryPartners', partner._id, updates);
+      return res.status(200).json({
+        success: true,
+        message: `Status updated to ${status}`,
+        status: updated.status
+      });
+    }
+
+    // 2. Real Mongoose MongoDB Mode handler
+    const partner = await DeliveryPartner.findOne({ userId: req.user.id });
+    if (!partner) {
+      return res.status(404).json({ success: false, message: 'Delivery partner profile not found' });
+    }
+
+    const prevStatus = partner.status || 'offline';
+
+    if (status === 'online') {
+      partner.isAvailableForOrders = true;
+      if (prevStatus === 'offline') {
+        partner.shiftStartTime = now;
+      } else if (prevStatus === 'break') {
+        partner.breakEndTime = now;
+      } else if (prevStatus === 'lunch') {
+        partner.lunchEndTime = now;
+      }
+    } else if (status === 'break') {
+      partner.isAvailableForOrders = false;
+      partner.breakStartTime = now;
+    } else if (status === 'lunch') {
+      partner.isAvailableForOrders = false;
+      partner.lunchStartTime = now;
+    } else if (status === 'offline') {
+      partner.isAvailableForOrders = false;
+      partner.shiftEndTime = now;
+    }
+
+    partner.status = status;
+    await partner.save();
 
     res.status(200).json({
       success: true,

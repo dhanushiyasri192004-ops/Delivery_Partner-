@@ -33,8 +33,30 @@ const DeliveryPartnerSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['online', 'offline', 'busy'],
+    enum: ['online', 'offline', 'busy', 'break', 'lunch'],
     default: 'offline'
+  },
+  shiftStartTime: {
+    type: Date
+  },
+  shiftEndTime: {
+    type: Date
+  },
+  breakStartTime: {
+    type: Date
+  },
+  breakEndTime: {
+    type: Date
+  },
+  lunchStartTime: {
+    type: Date
+  },
+  lunchEndTime: {
+    type: Date
+  },
+  isAvailableForOrders: {
+    type: Boolean,
+    default: false
   },
   currentLocation: {
     type: {

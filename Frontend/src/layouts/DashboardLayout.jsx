@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../redux/slices/authSlice';
+import { updateOnlineStatus } from '../redux/slices/deliverySlice';
 import { 
   LayoutDashboard, 
   MapPin, 
@@ -37,10 +38,25 @@ const DashboardLayout = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showCameraModal, setShowCameraModal] = useState(false);
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
+  const [showActiveOrderWarning, setShowActiveOrderWarning] = useState(false);
   const [gpsCoordinates, setGpsCoordinates] = useState({ lat: null, lng: null });
   const [cameraStream, setCameraStream] = useState(null);
   const unreadNotifications = useSelector((state) => state.notification.unreadCount || 0);
   const notificationList = useSelector((state) => state.notification.notifications || []);
+
+  // Select activeOrder & partnerStatus from delivery slice safely
+  const deliveryState = useSelector((state) => state.delivery || {});
+  const { partnerStatus, activeOrder } = deliveryState;
+
+  // Sync local status states with redux state
+  useEffect(() => {
+    if (user?.role === 'delivery_partner' && partnerStatus) {
+      setIsOnline(partnerStatus !== 'offline');
+      if (partnerStatus === 'break') setShiftStatus('break');
+      else if (partnerStatus === 'lunch') setShiftStatus('lunch');
+      else if (partnerStatus === 'online') setShiftStatus('active');
+    }
+  }, [partnerStatus, user?.role]);
 
   // Initialize Socket connection
   useEffect(() => {
@@ -111,6 +127,11 @@ const DashboardLayout = () => {
 
   const toggleOnlineStatus = () => {
     if (isOnline) {
+      // Verify there are no active delivery orders before checking out
+      if (user?.role === 'delivery_partner' && activeOrder) {
+        setShowActiveOrderWarning(true);
+        return;
+      }
       // User is checking out: show confirmation modal
       setShowCheckoutModal(true);
     } else {
@@ -159,6 +180,10 @@ const DashboardLayout = () => {
       setCameraStream(null);
     }
     
+    // Dispatch check-in status update to backend
+    if (user?.role === 'delivery_partner') {
+      dispatch(updateOnlineStatus('online'));
+    }
     setIsOnline(true);
     setShowCameraModal(false);
   };
@@ -172,6 +197,10 @@ const DashboardLayout = () => {
   };
 
   const handleConfirmCheckOut = () => {
+    // Dispatch check-out status update to backend
+    if (user?.role === 'delivery_partner') {
+      dispatch(updateOnlineStatus('offline'));
+    }
     setIsOnline(false);
     setShiftStatus('active');
     setShowCheckoutModal(false);
@@ -443,14 +472,14 @@ const DashboardLayout = () => {
               {isOnline && shiftStatus === 'active' && (
                 <div className="flex gap-2">
                   <button 
-                    onClick={() => setShiftStatus('break')}
+                    onClick={() => { dispatch(updateOnlineStatus('break')); setShiftStatus('break'); }}
                     className="bg-amber-50 hover:bg-amber-100 text-amber-700 px-3.5 py-1.5 rounded-full text-[10px] font-black border border-amber-250 transition-all active:scale-95 flex items-center gap-1"
                     title="Take a short coffee break"
                   >
                     ☕ Break
                   </button>
                   <button 
-                    onClick={() => setShiftStatus('lunch')}
+                    onClick={() => { dispatch(updateOnlineStatus('lunch')); setShiftStatus('lunch'); }}
                     className="bg-orange-50 hover:bg-orange-100 text-orange-700 px-3.5 py-1.5 rounded-full text-[10px] font-black border border-orange-250 transition-all active:scale-95 flex items-center gap-1"
                     title="Take lunch break"
                   >
@@ -461,7 +490,7 @@ const DashboardLayout = () => {
 
               {isOnline && shiftStatus === 'break' && (
                 <button 
-                  onClick={() => setShiftStatus('active')}
+                  onClick={() => { dispatch(updateOnlineStatus('online')); setShiftStatus('active'); }}
                   className="bg-green-600 hover:bg-green-700 text-white px-4 py-1.5 rounded-full text-[10px] font-black shadow-sm transition-all active:scale-95 flex items-center gap-1"
                 >
                   End Break
@@ -470,7 +499,7 @@ const DashboardLayout = () => {
 
               {isOnline && shiftStatus === 'lunch' && (
                 <button 
-                  onClick={() => setShiftStatus('active')}
+                  onClick={() => { dispatch(updateOnlineStatus('online')); setShiftStatus('active'); }}
                   className="bg-green-600 hover:bg-green-700 text-white px-4 py-1.5 rounded-full text-[10px] font-black shadow-sm transition-all active:scale-95 flex items-center gap-1"
                 >
                   End Lunch
@@ -629,6 +658,28 @@ const DashboardLayout = () => {
                 Cancel
               </button>
             </div>
+          </div>
+        </div>
+      )}
+      {/* Active Order Checkout Warning Modal */}
+      {showActiveOrderWarning && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+          <div className="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 text-center space-y-4 animate-scale-up">
+            <div className="w-12 h-12 bg-amber-50 border border-amber-200 text-amber-500 rounded-full flex items-center justify-center mx-auto text-2xl font-bold">
+              ⚠️
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-base font-bold text-slate-800">Active Delivery In Progress</h3>
+              <p className="text-xs text-slate-500 leading-relaxed font-semibold">
+                You have an active delivery. Please complete your current order before checking out.
+              </p>
+            </div>
+            <button 
+              onClick={() => setShowActiveOrderWarning(false)}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-xs shadow-md transition-all active:scale-95"
+            >
+              Understand
+            </button>
           </div>
         </div>
       )}
