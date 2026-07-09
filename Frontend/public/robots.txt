@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /delivery/
+Disallow: /technician/
+Disallow: /executive/
+Disallow: /auth/
+Allow: /

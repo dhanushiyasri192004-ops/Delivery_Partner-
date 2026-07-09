@@ -1,0 +1,9 @@
+{
+  "short_name": "connect app-delivery partner",
+  "name": "connect app-delivery partner Management",
+  "icons": [],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#f59e0b",
+  "background_color": "#f8fafc"
+}

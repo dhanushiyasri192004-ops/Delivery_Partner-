@@ -1,0 +1,351 @@
+{
+  "users": [
+    {
+      "_id": "2a2i3oaph",
+      "createdAt": "2026-07-08T09:48:42.367Z",
+      "updatedAt": "2026-07-08T09:48:42.367Z",
+      "name": "Test User",
+      "email": "testregister@example.com",
+      "password": "$2a$10$z/hjGVxk4KdqyVl0SJCQZe6ajUxeq2hV5PujY9hR91Y.Hu11jq3uC",
+      "mobileNumber": "1234567890",
+      "role": "delivery_partner"
+    },
+    {
+      "_id": "v3jl1j48t",
+      "createdAt": "2026-07-08T09:50:42.033Z",
+      "updatedAt": "2026-07-08T09:50:42.033Z",
+      "name": "Dhanu",
+      "email": "dhanushiya@gmail.com",
+      "password": "$2a$10$VgSQL9gLUIM.2BcrDTQKKuLjBI71DCQJnlOsv6VHTiemSQ1.zt5WG",
+      "mobileNumber": "9876543212",
+      "role": "delivery_partner"
+    }
+  ],
+  "deliveryPartners": [
+    {
+      "_id": "i197tcob4",
+      "createdAt": "2026-07-08T09:48:42.389Z",
+      "updatedAt": "2026-07-08T09:48:42.389Z",
+      "userId": "2a2i3oaph",
+      "aadhaarNumber": "123456789012",
+      "panNumber": "ABCDE1234F",
+      "vehicle": {
+        "name": "Test Bike",
+        "number": "KA-01-AB-1234",
+        "licenseNumber": "DL12345678",
+        "rcBookUrl": ""
+      },
+      "bankDetails": {
+        "bankName": "SBI",
+        "accountHolderName": "Test User",
+        "ifscCode": "SBIN0001234",
+        "accountNumber": "1234567890",
+        "branch": "Indiranagar"
+      }
+    },
+    {
+      "_id": "32crwwt7h",
+      "createdAt": "2026-07-08T09:50:42.041Z",
+      "updatedAt": "2026-07-08T15:26:28.722Z",
+      "userId": "v3jl1j48t",
+      "aadhaarNumber": "656766755656",
+      "panNumber": "PAN54337",
+      "vehicle": {
+        "name": "bike",
+        "number": "KA-12-AB-2342",
+        "licenseNumber": "345765756867",
+        "rcBookUrl": "C:\\Users\\DHANUSHIYA SRI M\\Desktop\\Delivey Partner\\Backend\\src\\uploads\\rcBook-1783504241851-508908413.png"
+      },
+      "bankDetails": {
+        "bankName": "SBI",
+        "accountHolderName": "Dhanu",
+        "ifscCode": "SBI32452345",
+        "accountNumber": "DFS5467658678",
+        "branch": "Nagarbhavii"
+      },
+      "status": "online"
+    }
+  ],
+  "technicians": [],
+  "executives": [],
+  "wallets": [
+    {
+      "_id": "gjf7sgget",
+      "createdAt": "2026-07-08T09:48:42.380Z",
+      "updatedAt": "2026-07-08T09:48:42.380Z",
+      "userId": "2a2i3oaph",
+      "balance": 0,
+      "transactions": []
+    },
+    {
+      "_id": "szwc7jaff",
+      "createdAt": "2026-07-08T09:50:42.037Z",
+      "updatedAt": "2026-07-08T16:39:33.726Z",
+      "userId": "v3jl1j48t",
+      "balance": 120,
+      "transactions": [
+        {
+          "amount": 270,
+          "type": "credit",
+          "description": "Earnings for Order #567890",
+          "timestamp": "2026-07-08T15:26:28.726Z"
+        },
+        {
+          "amount": 150,
+          "type": "debit",
+          "description": "Withdrawal Request Submitted",
+          "timestamp": "2026-07-08T16:39:33.724Z"
+        }
+      ]
+    }
+  ],
+  "orders": [
+    {
+      "_id": "ord12345678901234567890",
+      "customerId": "cust101",
+      "vendorId": "vend202",
+      "deliveryPartnerId": "32crwwt7h",
+      "status": "reached_customer",
+      "pickupOtp": "1234",
+      "deliveryOtp": "5678",
+      "pickupCoordinates": {
+        "latitude": 12.9716,
+        "longitude": 77.5946
+      },
+      "deliveryCoordinates": {
+        "latitude": 12.9352,
+        "longitude": 77.6244
+      },
+      "earnings": {
+        "tripPay": 200,
+        "tips": 50,
+        "incentives": 0
+      },
+      "createdAt": "2026-07-08T18:00:02.041Z",
+      "orderType": "Food",
+      "priority": "Express",
+      "customerName": "Arun Kumar",
+      "pickupLocation": "Fresh Bites Restaurant, Indiranagar",
+      "deliveryLocation": "45, 5th Cross, Koramangala, Bengaluru",
+      "paymentMethod": "Online",
+      "updatedAt": "2026-07-09T04:55:26.821Z",
+      "pickupPhoto": "",
+      "pickupTime": "2026-07-09T04:31:25.113Z"
+    },
+    {
+      "_id": "ord55555678901234567890",
+      "customerId": "cust102",
+      "vendorId": "vend203",
+      "deliveryPartnerId": "32crwwt7h",
+      "status": "delivered",
+      "pickupOtp": "1234",
+      "deliveryOtp": "5678",
+      "pickupCoordinates": {
+        "latitude": 12.9716,
+        "longitude": 77.5946
+      },
+      "deliveryCoordinates": {
+        "latitude": 12.9352,
+        "longitude": 77.6244
+      },
+      "earnings": {
+        "tripPay": 120,
+        "tips": 20,
+        "incentives": 10
+      },
+      "createdAt": "2026-07-08T12:00:00.000Z",
+      "deliveryTime": "2026-07-08T12:45:00.000Z",
+      "orderType": "Food",
+      "priority": "Normal",
+      "customerName": "Priya Sharma",
+      "pickupLocation": "Pizza Hut, MG Road",
+      "deliveryLocation": "12, 10th Main, Indiranagar, Bengaluru",
+      "paymentMethod": "Online"
+    },
+    {
+      "_id": "ord77777678901234567890",
+      "customerId": "cust103",
+      "vendorId": "vend204",
+      "deliveryPartnerId": "32crwwt7h",
+      "status": "delivered",
+      "pickupOtp": "1234",
+      "deliveryOtp": "5678",
+      "pickupCoordinates": {
+        "latitude": 12.9716,
+        "longitude": 77.5946
+      },
+      "deliveryCoordinates": {
+        "latitude": 12.9352,
+        "longitude": 77.6244
+      },
+      "earnings": {
+        "tripPay": 250,
+        "tips": 0,
+        "incentives": 15
+      },
+      "createdAt": "2026-07-07T15:00:00.000Z",
+      "deliveryTime": "2026-07-07T16:15:00.000Z",
+      "orderType": "Product",
+      "priority": "Express",
+      "customerName": "Rohan Das",
+      "pickupLocation": "ForgeIndia Fulfillment Center",
+      "deliveryLocation": "88, 2nd Stage, HSR Layout, Bengaluru",
+      "paymentMethod": "Cash on Delivery"
+    },
+    {
+      "_id": "ord88888678901234567890",
+      "customerId": "cust104",
+      "vendorId": "vend205",
+      "deliveryPartnerId": "32crwwt7h",
+      "status": "delivered",
+      "pickupOtp": "1234",
+      "deliveryOtp": "5678",
+      "pickupCoordinates": {
+        "latitude": 12.9716,
+        "longitude": 77.5946
+      },
+      "deliveryCoordinates": {
+        "latitude": 12.9352,
+        "longitude": 77.6244
+      },
+      "earnings": {
+        "tripPay": 400,
+        "tips": 100,
+        "incentives": 50
+      },
+      "createdAt": "2026-07-04T10:00:00.000Z",
+      "deliveryTime": "2026-07-04T12:30:00.000Z",
+      "orderType": "Technician",
+      "priority": "Normal",
+      "customerName": "Anil Murthy",
+      "pickupLocation": "Forge Warehouse",
+      "deliveryLocation": "Block 4, Whitefield, Bengaluru",
+      "paymentMethod": "Online"
+    },
+    {
+      "_id": "ord99999678901234567890",
+      "customerId": "cust105",
+      "vendorId": "vend206",
+      "deliveryPartnerId": "32crwwt7h",
+      "status": "cancelled",
+      "pickupOtp": "1234",
+      "deliveryOtp": "5678",
+      "pickupCoordinates": {
+        "latitude": 12.9716,
+        "longitude": 77.5946
+      },
+      "deliveryCoordinates": {
+        "latitude": 12.9352,
+        "longitude": 77.6244
+      },
+      "earnings": {
+        "tripPay": 0,
+        "tips": 0,
+        "incentives": 0
+      },
+      "createdAt": "2026-07-08T08:00:00.000Z",
+      "deliveryTime": "2026-07-08T08:15:00.000Z",
+      "orderType": "Food",
+      "priority": "Express",
+      "customerName": "Vikram Seth",
+      "pickupLocation": "Burger King, Koramangala",
+      "deliveryLocation": "5, 4th Block, Jayanagar, Bengaluru",
+      "paymentMethod": "Online"
+    },
+    {
+      "_id": "ord00000678901234567890",
+      "customerId": "cust106",
+      "vendorId": "vend207",
+      "deliveryPartnerId": "32crwwt7h",
+      "status": "returned",
+      "pickupOtp": "1234",
+      "deliveryOtp": "5678",
+      "pickupCoordinates": {
+        "latitude": 12.9716,
+        "longitude": 77.5946
+      },
+      "deliveryCoordinates": {
+        "latitude": 12.9352,
+        "longitude": 77.6244
+      },
+      "earnings": {
+        "tripPay": 150,
+        "tips": 0,
+        "incentives": 0
+      },
+      "createdAt": "2026-07-06T11:00:00.000Z",
+      "deliveryTime": "2026-07-06T12:00:00.000Z",
+      "orderType": "Product",
+      "priority": "Normal",
+      "customerName": "Siddharth Sen",
+      "pickupLocation": "Forge Fulfillment Center",
+      "deliveryLocation": "9, 80 Feet Road, Indiranagar, Bengaluru",
+      "paymentMethod": "Cash on Delivery"
+    },
+    {
+      "_id": "ord11111678901234567890",
+      "customerId": "cust107",
+      "vendorId": "vend208",
+      "deliveryPartnerId": "32crwwt7h",
+      "status": "scheduled",
+      "pickupOtp": "1234",
+      "deliveryOtp": "5678",
+      "pickupCoordinates": {
+        "latitude": 12.9716,
+        "longitude": 77.5946
+      },
+      "deliveryCoordinates": {
+        "latitude": 12.9352,
+        "longitude": 77.6244
+      },
+      "earnings": {
+        "tripPay": 350,
+        "tips": 0,
+        "incentives": 0
+      },
+      "createdAt": "2026-07-08T22:00:00.000Z",
+      "orderType": "Technician",
+      "priority": "Normal",
+      "customerName": "Meera Nair",
+      "pickupLocation": "Forge Hub",
+      "deliveryLocation": "102, Prestige Apt, Bellandur, Bengaluru",
+      "paymentMethod": "Online"
+    },
+    {
+      "_id": "ord09876543210987654321",
+      "customerId": "cust101",
+      "vendorId": "vend202",
+      "deliveryPartnerId": "i197tcob4",
+      "status": "accepted",
+      "pickupOtp": "1234",
+      "deliveryOtp": "5678",
+      "pickupCoordinates": {
+        "latitude": 12.9716,
+        "longitude": 77.5946
+      },
+      "deliveryCoordinates": {
+        "latitude": 12.9352,
+        "longitude": 77.6244
+      },
+      "earnings": {
+        "tripPay": 200,
+        "tips": 50,
+        "incentives": 0
+      },
+      "createdAt": "2026-07-08T09:48:42.389Z"
+    }
+  ],
+  "bookings": [],
+  "trips": [],
+  "withdrawals": [
+    {
+      "_id": "wvxf0mmef",
+      "createdAt": "2026-07-08T16:39:33.737Z",
+      "updatedAt": "2026-07-08T16:39:33.737Z",
+      "userId": "v3jl1j48t",
+      "amount": 150,
+      "status": "pending",
+      "requestDate": "2026-07-08T16:39:33.733Z"
+    }
+  ]
+}
