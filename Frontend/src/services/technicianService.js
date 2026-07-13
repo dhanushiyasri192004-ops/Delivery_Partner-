@@ -21,8 +21,8 @@ const technicianService = {
     return response.data;
   },
 
-  arrivedCustomer: async (bookingId) => {
-    const response = await api.patch(`/technician/services/${bookingId}/arrived`);
+  arrivedCustomer: async (bookingId, coordinates) => {
+    const response = await api.patch(`/technician/services/${bookingId}/arrived`, coordinates);
     return response.data;
   },
 
@@ -33,6 +33,21 @@ const technicianService = {
     return response.data;
   },
 
+  startService: async (bookingId) => {
+    const response = await api.patch(`/technician/services/${bookingId}/start`);
+    return response.data;
+  },
+
+  startInProgress: async (bookingId) => {
+    const response = await api.patch(`/technician/services/${bookingId}/in-progress`);
+    return response.data;
+  },
+
+  completeService: async (bookingId, coordinates) => {
+    const response = await api.patch(`/technician/services/${bookingId}/complete`, coordinates);
+    return response.data;
+  },
+
   uploadAfterPhoto: async (bookingId, formData) => {
     const response = await api.post(`/technician/services/${bookingId}/after-photo`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
@@ -40,10 +55,18 @@ const technicianService = {
     return response.data;
   },
 
-  completeService: async (bookingId, formData) => {
-    const response = await api.post(`/technician/services/${bookingId}/complete`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    });
+  verifyOTP: async (bookingId, otp) => {
+    const response = await api.post(`/technician/services/${bookingId}/verify-otp`, { otp });
+    return response.data;
+  },
+
+  releasePayout: async (bookingId) => {
+    const response = await api.patch(`/technician/services/${bookingId}/update-wallet`);
+    return response.data;
+  },
+
+  closeJob: async (bookingId) => {
+    const response = await api.patch(`/technician/services/${bookingId}/close`);
     return response.data;
   },
 

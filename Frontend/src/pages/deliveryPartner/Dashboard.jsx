@@ -202,7 +202,11 @@ const Dashboard = () => {
   }, []);
 
   const handleAcceptOrder = (orderId) => {
-    dispatch(acceptOrder(orderId));
+    dispatch(acceptOrder(orderId)).then((res) => {
+      if (!res.error) {
+        navigate(`/delivery/order-details/${orderId}`);
+      }
+    });
   };
 
   const handleReachedVendor = (orderId) => {
@@ -244,494 +248,213 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 text-base">
       {/* Top Welcome Panel is rendered inside the layout header */}
 
       {/* Metrics Row (Matching exact layout: Earnings, Today's Orders, Completed, Cancellation) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-fade-in">
         {/* Earnings Card */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-150 shadow-sm flex items-center justify-between">
+        <Link to="/delivery/earnings" className="bg-gradient-to-br from-amber-50/50 via-white to-white p-6 rounded-2xl border border-amber-150 hover:border-amber-300 shadow-sm hover:shadow-lg transition-all duration-300 flex items-center justify-between cursor-pointer text-slate-800 hover:text-slate-900 transform hover:-translate-y-1">
           <div className="space-y-1">
-            <span className="text-[11px] text-slate-400 font-medium">Today's Earnings</span>
-            <p className="text-2xl font-extrabold text-slate-850">₹{metrics.todayEarnings || '1,680'}</p>
-            <span className="text-[10px] text-green-600 font-bold flex items-center gap-0.5">
-              ▲ 18% <span className="text-slate-400 font-normal">vs yesterday</span>
+            <span className="text-sm text-amber-700 font-bold block uppercase tracking-wider">Today's Earnings</span>
+            <p className="text-3xl font-black text-slate-950">₹{metrics.todayEarnings || '1,680'}</p>
+            <span className="text-sm text-green-700 font-bold flex items-center gap-1">
+              ▲ 18% <span className="text-slate-500 font-normal">vs yesterday</span>
             </span>
           </div>
-          <div className="w-10 h-10 rounded-full bg-blue-50/70 text-blue-500 flex items-center justify-center border border-blue-100">
-            <CreditCard className="h-5 w-5" />
+          <div className="w-12 h-12 rounded-xl bg-amber-100/60 text-amber-700 flex items-center justify-center border border-amber-200">
+            <CreditCard className="h-6 w-6" />
           </div>
-        </div>
-
+        </Link>
+ 
         {/* Orders Card */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-150 shadow-sm flex items-center justify-between">
+        <Link to="/delivery/orders" className="bg-gradient-to-br from-blue-50/50 via-white to-white p-6 rounded-2xl border border-blue-150 hover:border-blue-300 shadow-sm hover:shadow-lg transition-all duration-300 flex items-center justify-between cursor-pointer text-slate-800 hover:text-slate-900 transform hover:-translate-y-1">
           <div className="space-y-1">
-            <span className="text-[11px] text-slate-400 font-medium">Today's Orders</span>
-            <p className="text-2xl font-extrabold text-slate-850">{metrics.todayOrdersCount || '8'}</p>
-            <span className="text-[10px] text-green-600 font-bold flex items-center gap-0.5">
-              ▲ 14% <span className="text-slate-400 font-normal">vs yesterday</span>
+            <span className="text-sm text-blue-700 font-bold block uppercase tracking-wider">Today's Orders</span>
+            <p className="text-3xl font-black text-slate-950">{metrics.todayOrdersCount || '8'}</p>
+            <span className="text-sm text-green-700 font-bold flex items-center gap-1">
+              ▲ 14% <span className="text-slate-500 font-normal">vs yesterday</span>
             </span>
           </div>
-          <div className="w-10 h-10 rounded-full bg-blue-50/70 text-blue-500 flex items-center justify-center border border-blue-100">
-            <ShoppingBag className="h-5 w-5" />
+          <div className="w-12 h-12 rounded-xl bg-blue-100/60 text-blue-700 flex items-center justify-center border border-blue-200">
+            <ShoppingBag className="h-6 w-6" />
           </div>
-        </div>
-
+        </Link>
+ 
         {/* Completed Card */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-150 shadow-sm flex items-center justify-between">
+        <Link to="/delivery/orders" className="bg-gradient-to-br from-emerald-50/50 via-white to-white p-6 rounded-2xl border border-emerald-150 hover:border-emerald-300 shadow-sm hover:shadow-lg transition-all duration-300 flex items-center justify-between cursor-pointer text-slate-800 hover:text-slate-900 transform hover:-translate-y-1">
           <div className="space-y-1">
-            <span className="text-[11px] text-slate-400 font-medium">Completed Orders</span>
-            <p className="text-2xl font-extrabold text-slate-850">{metrics.completedCount || '6'}</p>
-            <span className="text-[10px] text-green-600 font-bold flex items-center gap-0.5">
-              ▲ 20% <span className="text-slate-400 font-normal">vs yesterday</span>
+            <span className="text-sm text-emerald-700 font-bold block uppercase tracking-wider">Completed Orders</span>
+            <p className="text-3xl font-black text-slate-950">{metrics.completedCount || '6'}</p>
+            <span className="text-sm text-green-700 font-bold flex items-center gap-1">
+              ▲ 20% <span className="text-slate-500 font-normal">vs yesterday</span>
             </span>
           </div>
-          <div className="w-10 h-10 rounded-full bg-green-50/70 text-green-600 flex items-center justify-center border border-green-100">
-            <CheckCircle className="h-5 w-5" />
+          <div className="w-12 h-12 rounded-xl bg-emerald-100/60 text-emerald-700 flex items-center justify-center border border-emerald-200">
+            <CheckCircle className="h-6 w-6" />
           </div>
-        </div>
-
-        {/* Cancellation Card */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-150 shadow-sm flex items-center justify-between">
+        </Link>
+              {/* Cancellation Card */}
+        <Link to="/delivery/performance" className="bg-gradient-to-br from-rose-50/50 via-white to-white p-6 rounded-2xl border border-rose-150 hover:border-rose-300 shadow-sm hover:shadow-lg transition-all duration-300 flex items-center justify-between cursor-pointer text-slate-800 hover:text-slate-900 transform hover:-translate-y-1">
           <div className="space-y-1">
-            <span className="text-[11px] text-slate-400 font-medium">Cancellation</span>
-            <p className="text-2xl font-extrabold text-slate-850">{metrics.cancellationCount || '1'}</p>
-            <span className="text-[10px] text-red-500 font-bold flex items-center gap-0.5">
-              ▼ 50% <span className="text-slate-400 font-normal">vs yesterday</span>
+            <span className="text-sm text-rose-700 font-bold block uppercase tracking-wider">Cancellation</span>
+            <p className="text-3xl font-black text-slate-955">{metrics.cancellationCount || '1'}</p>
+            <span className="text-sm text-red-750 font-bold flex items-center gap-1">
+              ▼ 50% <span className="text-slate-500 font-normal">vs yesterday</span>
             </span>
           </div>
-          <div className="w-10 h-10 rounded-full bg-red-50/70 text-red-500 flex items-center justify-center border border-red-100">
-            <XCircle className="h-5 w-5" />
+          <div className="w-12 h-12 rounded-xl bg-rose-100/60 text-rose-700 flex items-center justify-center border border-rose-200">
+            <XCircle className="h-6 w-6" />
           </div>
-        </div>
-      </div>
-
-      {/* Main Order & Tracking section */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Current active order block */}
-        <div className="lg:col-span-5 bg-white rounded-2xl border border-slate-100 shadow-sm flex flex-col overflow-hidden">
-          {/* Card Header */}
-          <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-slate-100 flex-shrink-0">
-            <h3 className="font-bold text-slate-800 text-lg">Current Order</h3>
-            {activeOrder && (
-              <span className="bg-amber-100 text-amber-700 text-xs px-2.5 py-1 rounded-full font-bold">
-                #{activeOrder._id?.substring(18) || 'ORD67890'}
-              </span>
-            )}
-          </div>
-
-            {/* Scrollable content area */}
-            {activeOrder ? (
-              <div className="flex flex-col flex-1 px-6 py-5 space-y-4 overflow-y-auto">
-
-                {/* ── 9-STEP PROGRESS BAR ── */}
-                {(() => {
-                  const stepIdx = getStepperIndex();
-                  return (
-                    <div className="relative flex items-start justify-between">
-                      <div className="absolute top-[9px] left-[9px] right-[9px] h-0.5 bg-slate-100 z-0" />
-                      <div
-                        className="absolute top-[9px] left-[9px] h-0.5 bg-green-400 z-0 transition-all duration-500"
-                        style={{ width: `calc(${(stepIdx / 8) * 100}% - 9px)` }}
-                      />
-                      {STEPS.map((s, i) => {
-                        const done = i < stepIdx;
-                        const active = i === stepIdx;
-                        return (
-                          <div key={i} className="flex flex-col items-center gap-0.5 z-10" style={{ width: `${100 / STEPS.length}%` }}>
-                            <div className={`w-[18px] h-[18px] rounded-full border-2 flex items-center justify-center text-[7px] font-black transition-all ${
-                              done   ? 'bg-green-500 border-green-500 text-white' :
-                              active ? 'bg-blue-600 border-blue-600 text-white shadow-md shadow-blue-200 scale-125' :
-                                       'bg-white border-slate-200 text-slate-300'
-                            }`}>
-                              {done ? '✓' : i + 1}
-                            </div>
-                            <span className={`text-center text-[6px] font-extrabold uppercase leading-tight ${
-                              active ? 'text-blue-600' : done ? 'text-green-500' : 'text-slate-300'
-                            }`} style={{ maxWidth: 38 }}>{s.label}</span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  );
-                })()}
-
-                {/* ── STEP BANNER ── */}
-                {(() => {
-                  const idx = getStepperIndex();
-                  const s = STEPS[idx];
-                  const colorCls = {
-                    amber:  'bg-amber-50  border-amber-200  text-amber-700',
-                    blue:   'bg-blue-50   border-blue-200   text-blue-700',
-                    purple: 'bg-purple-50 border-purple-200 text-purple-700',
-                    orange: 'bg-orange-50 border-orange-200 text-orange-700',
-                    green:  'bg-green-50  border-green-200  text-green-700',
-                  }[s.color];
-                  return (
-                    <div className={`rounded-xl border px-4 py-2.5 flex items-center justify-between ${colorCls}`}>
-                      <div>
-                        <p className="font-black text-sm">{s.title}</p>
-                        <p className="text-[10px] font-medium opacity-75">{s.sub}</p>
-                      </div>
-                      <span className="text-xs font-black opacity-40 whitespace-nowrap ml-2">{idx + 1} / 9</span>
-                    </div>
-                  );
-                })()}
-
-                {/* ── ROUTE TIMELINE ── */}
-                <div className="relative border-l-2 border-dashed border-slate-200 pl-5 ml-1 space-y-4">
-                  <div className="relative">
-                    <span className="absolute -left-[22px] top-1 w-3 h-3 rounded-full bg-blue-500 border-2 border-white shadow"></span>
-                    <p className="text-[9px] text-blue-500 font-black uppercase tracking-widest">Pickup</p>
-                    <p className="font-bold text-slate-800 text-sm">Fresh Bites Restaurant</p>
-                    <p className="text-xs text-slate-400">24, MG Road, Indiranagar, Bengaluru</p>
-                  </div>
-                  <div className="relative">
-                    <span className="absolute -left-[22px] top-1 w-3 h-3 rounded-full bg-red-500 border-2 border-white shadow"></span>
-                    <p className="text-[9px] text-red-500 font-black uppercase tracking-widest">Drop</p>
-                    <p className="font-bold text-slate-800 text-sm">Arun Kumar</p>
-                    <p className="text-xs text-slate-400">45, 5th Cross, Koramangala, Bengaluru</p>
-                  </div>
-                </div>
-
-                {/* ── AMOUNT ROW ── */}
-                <div className="flex items-center justify-between border-t border-b border-slate-100 py-3">
-                  <div>
-                    <span className="text-[9px] text-slate-400 font-bold uppercase block">Amount</span>
-                    <span className="font-black text-slate-800 text-base">₹250.00</span>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-[9px] text-slate-400 font-bold uppercase block">Payment</span>
-                    <span className="text-green-600 font-black">Prepaid</span>
-                  </div>
-                </div>
-
-                {/* ── STEP ACTION PANELS ── */}
-                <div className="space-y-3">
-
-                  {/* STEP 1 → Reach Pickup */}
-                  {activeOrder.status === 'accepted' && (
-                    <button
-                      onClick={() => handleReachedVendor(activeOrder._id)}
-                      disabled={loading}
-                      className="w-full bg-brand hover:bg-brand-dark disabled:opacity-60 text-slate-950 font-black py-4 rounded-2xl flex items-center justify-center gap-2 shadow-md shadow-yellow-100 transition-all active:scale-95 text-sm"
-                    >
-                      📍  I Reached Vendor Outlet
-                    </button>
-                  )}
-
-                  {/* STEP 2 → Pick Up Order */}
-                  {activeOrder.status === 'reached_vendor' && !pickupConfirmed && (
-                    <button
-                      onClick={() => setPickupConfirmed(true)}
-                      className="w-full bg-brand hover:bg-brand-dark text-slate-950 font-black py-4 rounded-2xl flex items-center justify-center gap-2 shadow-md shadow-yellow-100 transition-all active:scale-95 text-sm"
-                    >
-                      ✅  Confirm Items Collected
-                    </button>
-                  )}
-
-                  {/* STEP 3 → Upload Pickup Photo */}
-                  {activeOrder.status === 'reached_vendor' && pickupConfirmed && !pickupPhoto && (
-                    <div className="space-y-2">
-                      <input type="file" accept="image/*" id="pkp-photo" capture="environment" className="hidden"
-                        onChange={(e) => {
-                          const f = e.target.files[0];
-                          if (f) { setPickupPhoto(f); setPickupPreview(URL.createObjectURL(f)); }
-                        }}
-                      />
-                      <label htmlFor="pkp-photo"
-                        className="cursor-pointer w-full border-2 border-dashed border-blue-200 hover:border-blue-400 bg-blue-50 hover:bg-blue-100 rounded-2xl p-5 flex flex-col items-center gap-2 transition-all"
-                      >
-                        <Camera className="h-7 w-7 text-blue-400" />
-                        <span className="text-sm font-black text-blue-600">Tap to Capture Package Photo</span>
-                        <span className="text-[10px] text-blue-400">Photo required before entering OTP</span>
-                      </label>
-                    </div>
-                  )}
-
-                  {/* STEP 4 → Start Delivery (Pickup OTP) */}
-                  {activeOrder.status === 'reached_vendor' && pickupConfirmed && pickupPhoto && (
-                    <div className="space-y-3">
-                      {pickupPreview && (
-                        <div className="flex items-center gap-3 bg-green-50 border border-green-100 rounded-xl px-3 py-2">
-                          <img src={pickupPreview} className="w-10 h-10 rounded-lg object-cover border border-green-200" alt="pickup" />
-                          <div>
-                            <p className="text-[10px] font-black text-green-700">Photo Captured ✓</p>
-                            <p className="text-[9px] text-green-500">Package photo saved</p>
-                          </div>
-                        </div>
-                      )}
-                      <div>
-                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-1.5">Enter Pickup OTP from Merchant</label>
-                        <input
-                          type="tel" inputMode="numeric" maxLength={6}
-                          value={pickupOtp}
-                          onChange={(e) => setPickupOtp(e.target.value.replace(/\D/g,''))}
-                          placeholder="_ _ _ _"
-                          className="w-full bg-slate-50 border-2 border-slate-200 focus:border-blue-500 rounded-xl px-4 py-3 text-xl font-black text-slate-800 text-center tracking-[0.4em] focus:outline-none transition-all"
-                        />
-                        <p className="text-[9px] text-slate-400 mt-1 text-center">Demo OTP: <span className="font-black text-slate-700">1234</span></p>
-                      </div>
-                      <button
-                        onClick={handleVerifyPickup}
-                        disabled={loading || pickupOtp.length < 4}
-                        className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-black py-4 rounded-2xl shadow-md shadow-blue-100 transition-all active:scale-95 text-sm"
-                      >
-                        🚀  Start Delivery Trip
-                      </button>
-                    </div>
-                  )}
-
-                  {/* STEP 5 → Reach Customer */}
-                  {activeOrder.status === 'picked_up' && (
-                    <button
-                      onClick={() => handleReachedCustomer(activeOrder._id)}
-                      disabled={loading}
-                      className="w-full bg-brand hover:bg-brand-dark disabled:opacity-60 text-slate-950 font-black py-4 rounded-2xl flex items-center justify-center gap-2 shadow-md shadow-yellow-100 transition-all active:scale-95 text-sm"
-                    >
-                      🏠  I Reached Customer Address
-                    </button>
-                  )}
-
-                  {/* STEP 6 → Verify Customer OTP */}
-                  {activeOrder.status === 'reached_customer' && !deliveryOtpConfirmed && (
-                    <div className="space-y-3">
-                      <div>
-                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-1.5">Enter Delivery OTP from Customer</label>
-                        <input
-                          type="tel" inputMode="numeric" maxLength={6}
-                          value={deliveryOtp}
-                          onChange={(e) => setDeliveryOtp(e.target.value.replace(/\D/g,''))}
-                          placeholder="_ _ _ _"
-                          className="w-full bg-slate-50 border-2 border-slate-200 focus:border-blue-500 rounded-xl px-4 py-3 text-xl font-black text-slate-800 text-center tracking-[0.4em] focus:outline-none transition-all"
-                        />
-                        <p className="text-[9px] text-slate-400 mt-1 text-center">Demo OTP: <span className="font-black text-slate-700">5678</span></p>
-                      </div>
-                      <button
-                        onClick={() => {
-                          if (deliveryOtp.length < 4) return alert('Please enter OTP');
-                          setDeliveryOtpConfirmed(true);
-                        }}
-                        disabled={deliveryOtp.length < 4}
-                        className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-black py-4 rounded-2xl shadow-md shadow-blue-100 transition-all active:scale-95 text-sm"
-                      >
-                        🔐  Verify OTP
-                      </button>
-                    </div>
-                  )}
-
-                  {/* STEP 7 → Upload Delivery Photo */}
-                  {activeOrder.status === 'reached_customer' && deliveryOtpConfirmed && !deliveryPhoto && (
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2 bg-green-50 border border-green-100 rounded-xl px-3 py-2">
-                        <span className="text-green-600 text-base">🔐</span>
-                        <div>
-                          <p className="text-[10px] font-black text-green-700">OTP Verified ✓</p>
-                          <p className="text-[9px] text-green-500">Now capture delivery proof photo</p>
-                        </div>
-                      </div>
-                      <input type="file" accept="image/*" id="dlv-photo" capture="environment" className="hidden"
-                        onChange={(e) => {
-                          const f = e.target.files[0];
-                          if (f) { setDeliveryPhoto(f); setDeliveryPreview(URL.createObjectURL(f)); }
-                        }}
-                      />
-                      <label htmlFor="dlv-photo"
-                        className="cursor-pointer w-full border-2 border-dashed border-purple-200 hover:border-purple-400 bg-purple-50 hover:bg-purple-100 rounded-2xl p-5 flex flex-col items-center gap-2 transition-all"
-                      >
-                        <Camera className="h-7 w-7 text-purple-400" />
-                        <span className="text-sm font-black text-purple-600">Capture Delivery Proof Photo</span>
-                        <span className="text-[10px] text-purple-400">Photo of package being handed over</span>
-                      </label>
-                    </div>
-                  )}
-
-                  {/* STEP 8 → Complete Delivery */}
-                  {activeOrder.status === 'reached_customer' && deliveryOtpConfirmed && deliveryPhoto && (
-                    <div className="space-y-3">
-                      {deliveryPreview && (
-                        <div className="flex items-center gap-3 bg-green-50 border border-green-100 rounded-xl px-3 py-2">
-                          <img src={deliveryPreview} className="w-10 h-10 rounded-lg object-cover border border-green-200" alt="delivery" />
-                          <div>
-                            <p className="text-[10px] font-black text-green-700">Delivery Photo Captured ✓</p>
-                            <p className="text-[9px] text-green-500">Proof photo saved</p>
-                          </div>
-                        </div>
-                      )}
-                      <button
-                        onClick={handleVerifyDelivery}
-                        disabled={loading}
-                        className="w-full bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white font-black py-4 rounded-2xl shadow-md shadow-green-100 transition-all active:scale-95 text-sm"
-                      >
-                        🎉  Complete Delivery & End Trip
-                      </button>
-                    </div>
-                  )}
-
-                  <Link
-                    to={`/delivery/order-details/${activeOrder._id}`}
-                    className="w-full bg-slate-50 hover:bg-slate-100 text-slate-500 font-semibold py-2.5 rounded-xl block text-center text-xs transition-all border border-slate-100 mt-1"
-                  >
-                    View Order Details
-                  </Link>
-                </div>
-              </div>
-
-            ) : assignedOrder ? (
-              /* New Order Alert */
-              <div className="px-6 py-5">
-                <div className="bg-amber-50 border border-amber-100 rounded-2xl p-5 space-y-4">
-                  <div className="flex gap-3 items-start">
-                    <Compass className="h-5 w-5 text-brand animate-spin mt-0.5 flex-shrink-0" />
-                    <div>
-                      <h5 className="font-black text-slate-800 text-sm">New Order Assigned!</h5>
-                      <p className="text-xs text-slate-500 mt-0.5">Accept within 60 seconds to secure this dispatch.</p>
-                    </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handleAcceptOrder(assignedOrder._id)}
-                      className="flex-1 bg-brand hover:bg-brand-dark text-slate-950 font-black py-3 rounded-xl text-xs transition-all active:scale-95"
-                    >
-                      ✅ Accept Order
-                    </button>
-                    <button className="flex-1 bg-white border border-slate-200 text-slate-500 font-bold py-3 rounded-xl text-xs">
-                      Decline
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="px-6 py-12 text-center space-y-3">
-                <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mx-auto">
-                  <Compass className={`h-6 w-6 text-slate-300 ${partnerStatus === 'break' || partnerStatus === 'lunch' ? '' : 'animate-spin'}`} />
-                </div>
-                
-                {partnerStatus === 'break' ? (
-                  <>
-                    <p className="text-slate-450 text-sm font-semibold">Shift paused for short rest...</p>
-                    <div className="inline-flex items-center gap-2 bg-amber-50 border border-amber-100 text-amber-700 px-3 py-1.5 rounded-full text-xs font-bold">
-                      <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-                      On Break
-                    </div>
-                  </>
-                ) : partnerStatus === 'lunch' ? (
-                  <>
-                    <p className="text-slate-450 text-sm font-semibold">Shift paused for lunch break...</p>
-                    <div className="inline-flex items-center gap-2 bg-orange-50 border border-orange-100 text-orange-700 px-3 py-1.5 rounded-full text-xs font-bold">
-                      <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span>
-                      Lunch Break
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <p className="text-slate-400 text-sm font-medium">Waiting for next dispatch...</p>
-                    <div className="inline-flex items-center gap-2 bg-green-50 border border-green-100 text-green-700 px-3 py-1.5 rounded-full text-xs font-bold">
-                      <span className="w-2 h-2 rounded-full bg-green-500 animate-ping"></span>
-                      Active on Dispatch Radar
-                    </div>
-                  </>
-                )}
-              </div>
-            )}
-        </div>
-
-        {/* Live Map Telemetry Widget (Matches mockup right block) */}
-        <div className="lg:col-span-7 bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col justify-between min-h-[440px]">
-          {/* Dummy Map Visual matching the reference image layout */}
-          <div className="flex-1 bg-slate-50 relative flex items-center justify-center overflow-hidden min-h-[340px]">
-            {/* Real Interactive Leaflet Map Container */}
-            <div id="leaflet-map-container" className="absolute inset-0 w-full h-full z-0 bg-slate-100" />
- 
-            {/* GPS HUD Info overlay */}
-            <div className="absolute top-4 left-4 bg-white/95 backdrop-blur px-3 py-1.5 rounded-xl text-[10px] text-slate-700 shadow border border-slate-100 font-bold flex items-center gap-1.5 z-10">
-              <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-ping"></span>
-              GPS Synchronized
-            </div>
- 
-            {/* Crosshair Button */}
-            <button className="absolute top-4 right-4 bg-white p-2.5 rounded-xl border border-slate-200/80 shadow text-slate-600 hover:bg-slate-50 transition-all z-10">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
-                <circle cx="12" cy="12" r="10" />
-                <path d="M12 2v4M12 18v4M2 12h4M18 12h4" />
-              </svg>
-            </button>
- 
-            {/* Yellow Navigator Button */}
-            <button className="absolute bottom-4 right-4 bg-yellow-400 hover:bg-yellow-500 text-slate-900 p-3.5 rounded-2xl shadow-lg shadow-yellow-500/25 transition-all z-10">
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-              </svg>
-            </button>
-          </div>
-
-          <div className="p-4 bg-white border-t border-slate-100 grid grid-cols-2">
+        </Link>
+          {/* Active Order Notice Banner */}
+      {activeOrder && (
+        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-fade-in">
+          <div className="flex gap-3 items-start sm:items-center">
+            <span className="text-2xl">📦</span>
             <div>
-              <span className="text-[10px] text-slate-400 font-semibold block uppercase">Distance to pickup</span>
-              <span className="font-extrabold text-slate-800 text-lg">1.2 km</span>
-            </div>
-            <div className="text-right">
-              <span className="text-[10px] text-slate-400 font-semibold block uppercase">Est. time</span>
-              <span className="font-extrabold text-slate-800 text-lg">6 min</span>
+              <h5 className="font-extrabold text-slate-900 text-sm">Active Delivery in Progress!</h5>
+              <p className="text-xs text-slate-500">Order ID: #{activeOrder._id?.substring(14) || activeOrder._id}</p>
             </div>
           </div>
+          <Link
+            to={`/delivery/order-details/${activeOrder._id}`}
+            className="bg-slate-950 hover:bg-slate-900 text-white font-black px-5 py-2.5 rounded-xl text-xs uppercase tracking-wider transition-all text-center"
+          >
+            Open Order Console
+          </Link>
         </div>
+      )}
       </div>
+
 
       {/* Row 3: Quick Access, Earnings graph preview, Performance Gauges (Matches wireframe bottom row) */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Quick Access Grid */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm transition-all hover:shadow-md duration-300">
           <h4 className="font-bold text-slate-800 mb-4 text-sm">Quick Access</h4>
           <div className="grid grid-cols-2 gap-3">
-            <Link to="/delivery/orders" className="p-3 bg-slate-50 hover:bg-brand/10 hover:text-slate-900 rounded-xl text-center transition-all block border border-slate-100">
+            <Link to="/delivery/orders" className="p-3 bg-slate-50 hover:bg-brand/10 hover:text-slate-950 rounded-xl text-center border border-slate-100 hover:border-brand/35 transition-all duration-300 hover:-translate-y-0.5 active:scale-95 block">
               <span className="text-xl block mb-1">📦</span>
-              <span className="text-xs font-semibold text-slate-600 block">Orders</span>
+              <span className="text-xs font-semibold text-slate-650 block">Orders</span>
             </Link>
-            <Link to="/delivery/wallet" className="p-3 bg-slate-50 hover:bg-brand/10 hover:text-slate-900 rounded-xl text-center transition-all block border border-slate-100">
+            <Link to="/delivery/earnings" className="p-3 bg-slate-50 hover:bg-brand/10 hover:text-slate-950 rounded-xl text-center border border-slate-100 hover:border-brand/35 transition-all duration-300 hover:-translate-y-0.5 active:scale-95 block">
               <span className="text-xl block mb-1">💳</span>
-              <span className="text-xs font-semibold text-slate-600 block">Earnings</span>
+              <span className="text-xs font-semibold text-slate-655 block">Earnings</span>
             </Link>
-            <Link to="/delivery/wallet" className="p-3 bg-slate-50 hover:bg-brand/10 hover:text-slate-900 rounded-xl text-center transition-all block border border-slate-100">
+            <Link to="/delivery/wallet" className="p-3 bg-slate-50 hover:bg-brand/10 hover:text-slate-950 rounded-xl text-center border border-slate-100 hover:border-brand/35 transition-all duration-300 hover:-translate-y-0.5 active:scale-95 block">
               <span className="text-xl block mb-1">💼</span>
-              <span className="text-xs font-semibold text-slate-600 block">Wallet</span>
+              <span className="text-xs font-semibold text-slate-650 block">Wallet</span>
             </Link>
-            <button className="p-3 bg-slate-50 hover:bg-brand/10 hover:text-slate-950 rounded-xl text-center transition-all border border-slate-100 w-full">
+            <button className="p-3 bg-slate-50 hover:bg-brand/10 hover:text-slate-950 rounded-xl text-center border border-slate-100 hover:border-brand/35 transition-all duration-300 hover:-translate-y-0.5 active:scale-95 w-full cursor-pointer">
               <span className="text-xl block mb-1">🎧</span>
-              <span className="text-xs font-semibold text-slate-600 block">Support</span>
+              <span className="text-xs font-semibold text-slate-650 block">Support</span>
             </button>
           </div>
         </div>
 
         {/* Earnings chart visual wrapper */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between">
+        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between transition-all hover:shadow-md duration-300">
           <div className="flex justify-between items-center mb-4">
             <h4 className="font-bold text-slate-800 text-sm">Earnings Today</h4>
-            <span className="text-xs text-slate-400 bg-slate-50 px-2 py-0.5 rounded border">Today</span>
+            <span className="text-xs text-brand font-extrabold bg-amber-50 px-2 py-0.5 rounded border border-amber-100">Live</span>
           </div>
           <div className="space-y-2">
-            <p className="text-3xl font-extrabold text-slate-800">₹1,680</p>
+            <p className="text-3xl font-black text-slate-800">₹{metrics.todayEarnings || '1,680'}</p>
             {/* Mock chart SVG line graph */}
-            <div className="h-16 w-full pt-4">
-              <svg viewBox="0 0 100 30" className="w-full h-full">
-                <path d="M0,25 Q15,10 30,20 T60,5 T90,15 T100,10" fill="none" stroke="#3b82f6" strokeWidth="2" />
+            <div className="h-16 w-full pt-2 relative overflow-visible">
+              <style>{`
+                @keyframes draw-line {
+                  to { stroke-dashoffset: 0; }
+                }
+                .animate-draw {
+                  stroke-dasharray: 300;
+                  stroke-dashoffset: 300;
+                  animation: draw-line 2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+                }
+              `}</style>
+              <svg 
+                viewBox="0 0 120 40" 
+                className="w-full h-full overflow-visible" 
+                preserveAspectRatio="none"
+                width="100%"
+                height="100%"
+              >
+                <defs>
+                  <linearGradient id="earnings-today-gradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.25" />
+                    <stop offset="100%" stopColor="#f59e0b" stopOpacity="0.0" />
+                  </linearGradient>
+                </defs>
+                {/* Area under the line */}
+                <path 
+                  d="M 10,32 L 30,22 L 50,28 L 70,12 L 90,24 L 110,8 L 110,38 L 10,38 Z" 
+                  fill="url(#earnings-today-gradient)" 
+                />
+                {/* The main stroke line */}
+                <path 
+                  d="M 10,32 L 30,22 L 50,28 L 70,12 L 90,24 L 110,8" 
+                  fill="none" 
+                  stroke="#f59e0b" 
+                  strokeWidth="2.5" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                  className="animate-draw"
+                />
+                {/* Dots representing coordinates */}
+                <circle cx="10" cy="32" r="2" fill="#f59e0b" stroke="#ffffff" strokeWidth="1" />
+                <circle cx="30" cy="22" r="2" fill="#f59e0b" stroke="#ffffff" strokeWidth="1" />
+                <circle cx="50" cy="28" r="2" fill="#f59e0b" stroke="#ffffff" strokeWidth="1" />
+                <circle cx="70" cy="12" r="2" fill="#f59e0b" stroke="#ffffff" strokeWidth="1" />
+                <circle cx="90" cy="24" r="2" fill="#f59e0b" stroke="#ffffff" strokeWidth="1" />
+                <circle cx="110" cy="8" r="2" fill="#f59e0b" stroke="#ffffff" strokeWidth="1" />
               </svg>
             </div>
           </div>
         </div>
 
         {/* Performance circular indicator */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col items-center justify-between text-center">
+        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col items-center justify-between text-center transition-all hover:shadow-lg hover:shadow-brand/5 hover:border-brand/30 duration-500 transform hover:-translate-y-1">
           <h4 className="font-bold text-slate-800 text-sm w-full text-left">Performance</h4>
-          <div className="relative flex items-center justify-center my-2">
-            {/* SVG circle track */}
-            <svg className="w-24 h-24">
+          
+          <div className="relative flex items-center justify-center my-3 group cursor-pointer">
+            <style>{`
+              @keyframes rotate-progress {
+                from { stroke-dashoffset: 238; }
+                to { stroke-dashoffset: 24; }
+              }
+              @keyframes pulse-soft {
+                0%, 100% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(245, 158, 11, 0.2)); }
+                50% { transform: scale(1.04); filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.4)); }
+              }
+              .animate-circle {
+                stroke-dasharray: 238;
+                stroke-dashoffset: 238;
+                animation: rotate-progress 2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+              }
+              .pulse-container {
+                animation: pulse-soft 3s infinite ease-in-out;
+              }
+            `}</style>
+            
+            {/* SVG circle track with gradient stroke */}
+            <svg className="w-24 h-24 transform -rotate-90 group-hover:rotate-0 transition-all duration-700 ease-out pulse-container">
+              <defs>
+                <linearGradient id="perfGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#fbbf24" />
+                  <stop offset="50%" stopColor="#f59e0b" />
+                  <stop offset="100%" stopColor="#d97706" />
+                </linearGradient>
+              </defs>
               <circle className="text-slate-100" strokeWidth="8" stroke="currentColor" fill="transparent" r="38" cx="48" cy="48" />
-              <circle className="text-green-500" strokeWidth="8" strokeDasharray="238" strokeDashoffset="24" strokeLinecap="round" stroke="currentColor" fill="transparent" r="38" cx="48" cy="48" />
+              <circle stroke="url(#perfGrad)" strokeWidth="8" strokeDasharray="238" strokeDashoffset="24" strokeLinecap="round" fill="transparent" r="38" cx="48" cy="48" className="animate-circle" />
             </svg>
-            <div className="absolute text-center">
-              <span className="text-xl font-extrabold text-slate-800">90%</span>
-              <span className="text-[8px] text-green-600 block font-bold">EXCELLENT</span>
+            
+            <div className="absolute text-center transition-all duration-300 transform group-hover:scale-110">
+              <span className="text-xl font-black text-slate-800 tracking-tight block">90%</span>
+              <span className="text-[8px] text-brand block font-black tracking-widest mt-0.5 relative flex items-center justify-center gap-0.5">
+                EXCELLENT <span className="animate-bounce">✨</span>
+              </span>
             </div>
           </div>
           <div className="space-y-1">
@@ -739,6 +462,41 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* New Order Alert Pop-up Notification Modal */}
+      {assignedOrder && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
+          <div className="bg-white rounded-3xl max-w-sm w-full p-6 space-y-5 shadow-2xl border border-slate-100 animate-scale-up text-center">
+            <div className="w-16 h-16 bg-amber-50 text-amber-500 rounded-full flex items-center justify-center mx-auto border-2 border-amber-100/50 shadow-inner animate-pulse">
+              <Compass className="h-8 w-8 text-amber-600 animate-spin" />
+            </div>
+            
+            <div className="space-y-1.5">
+              <h4 className="font-black text-slate-800 text-lg">New Order Assigned!</h4>
+              <p className="text-xs text-slate-500 max-w-xs mx-auto">
+                A new delivery dispatch has been assigned to you. Accept within 60 seconds to lock in this delivery.
+              </p>
+            </div>
+
+            <div className="flex gap-3 pt-2">
+              <button
+                onClick={() => handleAcceptOrder(assignedOrder._id)}
+                disabled={loading}
+                className="flex-1 bg-brand hover:bg-brand-dark text-slate-950 font-black py-3 rounded-xl text-xs uppercase tracking-wider transition-all active:scale-95 shadow-md shadow-yellow-100 cursor-pointer"
+              >
+                ✅ Accept Order
+              </button>
+              <button 
+                onClick={() => {}} // dummy close / decline
+                className="flex-1 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-500 font-bold py-3 rounded-xl text-xs uppercase tracking-wider transition-all active:scale-95"
+              >
+                Decline
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

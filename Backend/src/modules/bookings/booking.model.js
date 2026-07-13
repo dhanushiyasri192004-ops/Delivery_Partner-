@@ -13,7 +13,21 @@ const BookingSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['pending', 'accepted', 'transit', 'arrived', 'service_started', 'service_completed'],
+    enum: [
+      'pending', 
+      'accepted', 
+      'transit', 
+      'arrived', 
+      'before_photo_uploaded', 
+      'service_started', 
+      'in_progress', 
+      'completed', 
+      'after_photo_uploaded', 
+      'otp_verified', 
+      'wallet_updated', 
+      'closed', 
+      'cancelled'
+    ],
     default: 'pending'
   },
   beforeServicePhoto: {
@@ -32,6 +46,20 @@ const BookingSchema = new mongoose.Schema({
   earnings: {
     type: Number,
     default: 0
+  },
+  arrivalTime: {
+    type: Date
+  },
+  completionTime: {
+    type: Date
+  },
+  arrivalLocation: {
+    latitude: { type: Number },
+    longitude: { type: Number }
+  },
+  completionLocation: {
+    latitude: { type: Number },
+    longitude: { type: Number }
   },
   createdAt: {
     type: Date,

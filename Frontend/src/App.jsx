@@ -25,6 +25,7 @@ import LiveTracking from './pages/deliveryPartner/LiveTracking';
 import Withdraw from './pages/deliveryPartner/Withdraw';
 import Notifications from './pages/deliveryPartner/Notifications';
 import Settings from './pages/deliveryPartner/Settings';
+import OrderDetails from './pages/deliveryPartner/OrderDetails';
 
 // Technician Pages
 import TechnicianDashboard from './pages/technician/Dashboard';
@@ -35,6 +36,7 @@ import BeforeServicePhoto from './pages/technician/BeforeServicePhoto';
 import AfterServicePhoto from './pages/technician/AfterServicePhoto';
 import TechnicianNotifications from './pages/technician/Notifications';
 import TechnicianProfile from './pages/technician/Profile';
+import TechnicianWallet from './pages/technician/Wallet';
 
 // Executive Pages
 import ExecutiveDashboard from './pages/executive/Dashboard';
@@ -67,6 +69,7 @@ function App() {
             <Route path="history" element={<OrderHistory />} />
             <Route path="pickup-verification/:orderId" element={<PickupVerification />} />
             <Route path="delivery-verification/:orderId" element={<DeliveryVerification />} />
+            <Route path="order-details/:orderId" element={<OrderDetails />} />
             <Route path="tracking" element={<LiveTracking />} />
             <Route path="wallet" element={<Wallet />} />
             <Route path="withdraw" element={<Withdraw />} />
@@ -78,14 +81,14 @@ function App() {
           {/* Service Technician Console */}
           <Route path="/technician" element={<DashboardLayout />}>
             <Route path="dashboard" element={<TechnicianDashboard />} />
-            <Route path="services" element={<ActiveServices />} />
-            <Route path="assigned-services" element={<AssignedServices />} />
+            <Route path="services" element={<AssignedServices />} />
+            <Route path="active-services" element={<ActiveServices />} />
             <Route path="completed-services" element={<CompletedServices />} />
-            <Route path="before-photo" element={<BeforeServicePhoto />} />
-            <Route path="after-photo" element={<AfterServicePhoto />} />
-            <Route path="wallet" element={<Wallet />} />
+            <Route path="history" element={<CompletedServices />} />
+            <Route path="wallet" element={<TechnicianWallet />} />
             <Route path="notifications" element={<TechnicianNotifications />} />
             <Route path="profile" element={<TechnicianProfile />} />
+            <Route path="settings" element={<Settings />} />
           </Route>
 
           {/* Corporate Executive Console */}

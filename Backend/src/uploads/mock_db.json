@@ -19,6 +19,26 @@
       "password": "$2a$10$VgSQL9gLUIM.2BcrDTQKKuLjBI71DCQJnlOsv6VHTiemSQ1.zt5WG",
       "mobileNumber": "9876543212",
       "role": "delivery_partner"
+    },
+    {
+      "_id": "hxuw6xzzs",
+      "createdAt": "2026-07-09T07:48:20.175Z",
+      "updatedAt": "2026-07-09T07:48:20.175Z",
+      "name": "Dhanu",
+      "email": "dhanushiya0109@gmail.com",
+      "password": "$2a$10$8NFM0TSvdtRofPMx9V3x9u9V3lNUW/HeZRmAGmk9EbXUa.XGAWYs2",
+      "mobileNumber": "9876543211",
+      "role": "technician"
+    },
+    {
+      "_id": "usr_iz4t168dr",
+      "createdAt": "2026-07-13T04:43:05.687Z",
+      "updatedAt": "2026-07-13T04:43:05.688Z",
+      "name": "Vikram Singh",
+      "email": "executive@test.com",
+      "password": "$2a$10$OLaX6Y0MgRdAvCJEAt39FOJx2wnpUfQHRseLX/fS7Rrg5EGYFTe8q",
+      "mobileNumber": "9988776655",
+      "role": "executive"
     }
   ],
   "deliveryPartners": [
@@ -46,7 +66,7 @@
     {
       "_id": "32crwwt7h",
       "createdAt": "2026-07-08T09:50:42.041Z",
-      "updatedAt": "2026-07-09T07:04:04.382Z",
+      "updatedAt": "2026-07-13T04:26:20.858Z",
       "userId": "v3jl1j48t",
       "aadhaarNumber": "656766755656",
       "panNumber": "PAN54337",
@@ -63,11 +83,43 @@
         "accountNumber": "DFS5467658678",
         "branch": "Nagarbhavii"
       },
-      "status": "online"
+      "status": "busy",
+      "isAvailableForOrders": true,
+      "breakStartTime": "2026-07-09T13:28:19.994Z",
+      "breakEndTime": "2026-07-09T13:12:28.499Z",
+      "shiftEndTime": "2026-07-09T12:42:36.560Z",
+      "shiftStartTime": "2026-07-09T12:58:22.057Z"
     }
   ],
-  "technicians": [],
-  "executives": [],
+  "technicians": [
+    {
+      "_id": "y5hbtiu73",
+      "createdAt": "2026-07-09T07:48:20.193Z",
+      "updatedAt": "2026-07-09T07:48:20.193Z",
+      "userId": "hxuw6xzzs",
+      "aadhaarNumber": "546345654665",
+      "panNumber": "PAN567468678",
+      "technicianType": "Washing Machine Technician",
+      "bankDetails": {
+        "bankName": "idfc",
+        "accountHolderName": "mano",
+        "ifscCode": "IDFC547635765",
+        "accountNumber": "467678678676",
+        "branch": "neeladri"
+      }
+    }
+  ],
+  "executives": [
+    {
+      "_id": "exe_6hp775cpz",
+      "createdAt": "2026-07-13T04:43:05.688Z",
+      "updatedAt": "2026-07-13T04:43:05.688Z",
+      "userId": "usr_iz4t168dr",
+      "employeeId": "EXE-746794",
+      "status": "online",
+      "isApproved": true
+    }
+  ],
   "wallets": [
     {
       "_id": "gjf7sgget",
@@ -80,9 +132,9 @@
     {
       "_id": "szwc7jaff",
       "createdAt": "2026-07-08T09:50:42.037Z",
-      "updatedAt": "2026-07-09T07:04:04.387Z",
+      "updatedAt": "2026-07-12T18:07:11.686Z",
       "userId": "v3jl1j48t",
-      "balance": 390,
+      "balance": 590,
       "transactions": [
         {
           "amount": 270,
@@ -101,8 +153,42 @@
           "type": "credit",
           "description": "Earnings for Order #567890",
           "timestamp": "2026-07-09T07:04:04.385Z"
+        },
+        {
+          "amount": 120,
+          "type": "debit",
+          "description": "Withdrawal Request Submitted",
+          "timestamp": "2026-07-09T13:27:38.877Z"
+        },
+        {
+          "amount": 160,
+          "type": "credit",
+          "description": "Earnings for Order #543210",
+          "timestamp": "2026-07-12T18:06:33.032Z"
+        },
+        {
+          "amount": 160,
+          "type": "credit",
+          "description": "Earnings for Order #543210",
+          "timestamp": "2026-07-12T18:07:11.684Z"
         }
       ]
+    },
+    {
+      "_id": "t7oycbyfz",
+      "createdAt": "2026-07-09T07:48:20.186Z",
+      "updatedAt": "2026-07-09T07:48:20.186Z",
+      "userId": "hxuw6xzzs",
+      "balance": 0,
+      "transactions": []
+    },
+    {
+      "_id": "wlt_in0fnrswh",
+      "createdAt": "2026-07-13T04:43:05.688Z",
+      "updatedAt": "2026-07-13T04:43:05.688Z",
+      "userId": "usr_iz4t168dr",
+      "balance": 0,
+      "transactions": []
     }
   ],
   "orders": [
@@ -341,6 +427,70 @@
         "incentives": 0
       },
       "createdAt": "2026-07-08T09:48:42.389Z"
+    },
+    {
+      "_id": "ord98765432109876543210",
+      "customerId": "cust101",
+      "vendorId": "vend202",
+      "deliveryPartnerId": "32crwwt7h",
+      "status": "delivered",
+      "orderType": "Food",
+      "priority": "Express",
+      "customerName": "Ananya Sen",
+      "pickupLocation": "Biryani Zone, Koramangala",
+      "deliveryLocation": "Block 3, HSR Layout, Bengaluru",
+      "paymentMethod": "Online",
+      "pickupOtp": "7812",
+      "deliveryOtp": "3490",
+      "earnings": {
+        "tripPay": 125,
+        "tips": 25,
+        "incentives": 10
+      },
+      "createdAt": "2026-07-09T16:15:51.286Z",
+      "updatedAt": "2026-07-12T18:07:11.673Z",
+      "pickupPhoto": "",
+      "pickupTime": "2026-07-12T18:05:19.913Z",
+      "pickupCoordinates": {
+        "latitude": 12.9716,
+        "longitude": 77.5946
+      },
+      "deliveryPhoto": "",
+      "deliveryTime": "2026-07-12T18:07:11.671Z",
+      "deliveryCoordinates": {
+        "latitude": 12.9616,
+        "longitude": 77.6046
+      }
+    },
+    {
+      "_id": "ord_h5ad7heeo",
+      "customerId": "cust_982347",
+      "vendorId": "vend_182736",
+      "deliveryPartnerId": "32crwwt7h",
+      "status": "reached_vendor",
+      "orderType": "Food",
+      "priority": "Express",
+      "customerName": "Ananya Sen",
+      "pickupLocation": "Biryani Zone, Koramangala",
+      "deliveryLocation": "Block 3, HSR Layout, Bengaluru",
+      "paymentMethod": "Online",
+      "pickupOtp": "7812",
+      "deliveryOtp": "3490",
+      "earnings": {
+        "tripPay": 125,
+        "tips": 25,
+        "incentives": 10
+      },
+      "pickupCoordinates": {
+        "latitude": 12.9716,
+        "longitude": 77.5946
+      },
+      "deliveryCoordinates": {
+        "latitude": 12.9352,
+        "longitude": 77.6244
+      },
+      "createdAt": "2026-07-13T04:25:24.132Z",
+      "updatedAt": "2026-07-13T04:34:17.761Z"
     }
   ],
   "bookings": [],
@@ -354,6 +504,15 @@
       "amount": 150,
       "status": "pending",
       "requestDate": "2026-07-08T16:39:33.733Z"
+    },
+    {
+      "_id": "6rqgsfj4e",
+      "createdAt": "2026-07-09T13:27:38.884Z",
+      "updatedAt": "2026-07-09T13:27:38.884Z",
+      "userId": "v3jl1j48t",
+      "amount": 120,
+      "status": "pending",
+      "requestDate": "2026-07-09T13:27:38.882Z"
     }
   ]
 }

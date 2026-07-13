@@ -23,7 +23,9 @@ import {
   XCircle,
   RotateCcw,
   Sparkles,
-  Inbox
+  Inbox,
+  LayoutGrid,
+  List
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -49,6 +51,7 @@ const ActiveOrders = () => {
   // Search state
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [viewMode, setViewMode] = useState('grid'); // grid or list
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
@@ -146,23 +149,10 @@ const ActiveOrders = () => {
     }
   });
 
-  // 1. FILTER BY TAB
+  // 1. FILTER BY TAB (Deprecated - returning all orders, excluding technician orders)
   const tabFiltered = allOrders.filter(order => {
-    const status = order.status?.toLowerCase();
-    switch (activeTab) {
-      case 'Active':
-        return ['pending', 'accepted', 'reached_vendor', 'picked_up', 'reached_customer'].includes(status);
-      case 'Completed':
-        return status === 'delivered' || status === 'completed';
-      case 'Cancelled':
-        return status === 'cancelled';
-      case 'Returned':
-        return status === 'returned';
-      case 'Scheduled':
-        return status === 'scheduled';
-      default:
-        return true;
-    }
+    const type = (order.orderType || '').toLowerCase();
+    return type !== 'technician' && type !== 'toolkit' && type !== 'service';
   });
 
   // 2. APPLY FILTER SECTION DROPDOWNS
@@ -208,6 +198,7 @@ const ActiveOrders = () => {
       if (statusFilter === 'Completed' && s !== 'delivered' && s !== 'completed') return false;
       if (statusFilter === 'Cancelled' && s !== 'cancelled') return false;
       if (statusFilter === 'Returned' && s !== 'returned') return false;
+      if (statusFilter === 'Scheduled' && s !== 'scheduled') return false;
     }
 
     // Date Filter
@@ -344,28 +335,6 @@ const ActiveOrders = () => {
 
   return (
     <div className="space-y-6 animate-fade-in max-w-6xl mx-auto pb-10">
-      {/* HORIZONTAL TABS */}
-      <div className="flex bg-white p-2 rounded-2xl border border-slate-250 shadow-sm gap-2">
-        {['Active', 'Completed', 'Cancelled', 'Returned', 'Scheduled'].map((tab) => {
-          const isActive = activeTab === tab;
-          return (
-            <button
-              key={tab}
-              onClick={() => {
-                setActiveTab(tab);
-                setCurrentPage(1);
-              }}
-              className={`flex-1 py-3 text-center font-bold text-xs uppercase tracking-wider rounded-xl transition-all ${
-                isActive 
-                  ? 'bg-brand text-slate-950 font-black shadow-sm' 
-                  : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800'
-              }`}
-            >
-              {tab}
-            </button>
-          );
-        })}
-      </div>
 
       {/* FILTER & SORT SECTION */}
       <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm space-y-4">
@@ -416,17 +385,20 @@ const ActiveOrders = () => {
             </select>
           </div>
 
-          {/* Priority */}
+          {/* Status Dropdown */}
           <div className="space-y-1">
-            <label className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Priority</label>
+            <label className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Order Status</label>
             <select
-              value={priorityFilter}
-              onChange={(e) => { setPriorityFilter(e.target.value); setCurrentPage(1); }}
+              value={statusFilter}
+              onChange={(e) => { setStatusFilter(e.target.value); setCurrentPage(1); }}
               className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs bg-slate-50 focus:outline-none font-bold text-slate-700"
             >
-              <option value="All">All Priorities</option>
-              <option value="Express">⚡ Express</option>
-              <option value="Normal">Normal</option>
+              <option value="All">All Statuses</option>
+              <option value="Active">Active</option>
+              <option value="Completed">Completed</option>
+              <option value="Cancelled">Cancelled</option>
+              <option value="Returned">Returned</option>
+              <option value="Scheduled">Scheduled</option>
             </select>
           </div>
 
@@ -513,17 +485,119 @@ const ActiveOrders = () => {
 
             return (
               <div key={group} className="space-y-3">
-                <div className="flex items-center gap-2 px-1">
-                  <span className="w-1.5 h-4 bg-blue-600 rounded-full"></span>
-                  <h4 className="text-xs font-black text-slate-500 uppercase tracking-widest">{group} Orders</h4>
-                  <span className="text-[10px] bg-slate-100 text-slate-400 px-2 py-0.5 rounded-full font-bold">{groupList.length}</span>
+                <div className="flex items-center justify-between px-1">
+                  <div className="flex items-center gap-2">
+                    <span className="w-1.5 h-4 bg-blue-600 rounded-full"></span>
+                    <h4 className="text-xs font-black text-slate-500 uppercase tracking-widest">{group} Orders</h4>
+                    <span className="text-[10px] bg-slate-100 text-slate-400 px-2 py-0.5 rounded-full font-bold">{groupList.length}</span>
+                  </div>
+                  
+                  {/* Grid / List View Toggle */}
+                  <div className="flex items-center border border-slate-200 rounded-lg p-0.5 bg-slate-50 text-[10px] font-bold text-slate-500 shadow-xs">
+                    <button
+                      onClick={() => setViewMode('grid')}
+                      className={`px-2.5 py-1 rounded-md transition-all flex items-center gap-1 cursor-pointer ${
+                        viewMode === 'grid' 
+                          ? 'bg-white text-blue-600 shadow-xs font-black' 
+                          : 'hover:text-slate-800'
+                      }`}
+                      title="Grid View"
+                    >
+                      <LayoutGrid className="h-3.5 w-3.5" />
+                      <span>Grid</span>
+                    </button>
+                    <button
+                      onClick={() => setViewMode('list')}
+                      className={`px-2.5 py-1 rounded-md transition-all flex items-center gap-1 cursor-pointer ${
+                        viewMode === 'list' 
+                          ? 'bg-white text-blue-650 shadow-xs font-black' 
+                          : 'hover:text-slate-800'
+                      }`}
+                      title="List View"
+                    >
+                      <List className="h-3.5 w-3.5" />
+                      <span>List</span>
+                    </button>
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className={viewMode === 'list' 
+                  ? 'space-y-4' 
+                  : 'grid grid-cols-1 md:grid-cols-2 gap-4'
+                }>
                   {groupList.map((order) => {
                     const typeBadge = getOrderTypeBadge(order.orderType);
                     const isOrderActive = ['pending', 'accepted', 'reached_vendor', 'picked_up', 'reached_customer'].includes(order.status?.toLowerCase());
                     const totalPay = (order.earnings?.tripPay || 0) + (order.earnings?.tips || 0) + (order.earnings?.incentives || 0);
+
+                    if (viewMode === 'list') {
+                      return (
+                        <div 
+                          key={order._id}
+                          className="bg-white rounded-xl border border-slate-150 hover:border-blue-200 shadow-sm hover:shadow-md transition-all duration-200 p-5 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4 text-sm"
+                        >
+                          {/* Order ID, Date and Type Badge */}
+                          <div className="flex items-center gap-4 min-w-[220px]">
+                            <div className="space-y-1">
+                              <span className="text-sm font-black text-slate-800 font-mono">
+                                #ORD{order._id?.substring(14) || order._id}
+                              </span>
+                              <span className="text-xs text-slate-400 font-semibold block">{formatDateTime(order.createdAt)}</span>
+                            </div>
+                            <div className="flex flex-wrap gap-1.5">
+                              <span className={`text-[10px] font-black border px-2 py-0.5 rounded-full uppercase ${typeBadge.color}`}>
+                                {typeBadge.label.split(' ')[0]}
+                              </span>
+                              <span className={`text-[10px] font-black border px-2 py-0.5 rounded-full uppercase ${getStatusBadge(order.status)}`}>
+                                {order.status?.replace('_', ' ')}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Customer */}
+                          <div className="min-w-[130px]">
+                            <span className="text-xs text-slate-400 font-bold uppercase block mb-0.5">Customer</span>
+                            <span className="font-bold text-slate-700">{order.customerName || 'Anonymous Rider'}</span>
+                          </div>
+
+                          {/* Route pickup and dropoff */}
+                          <div className="flex-1 min-w-[280px] space-y-0.5">
+                            <div className="flex items-center gap-1.5 text-slate-650 font-bold">
+                              <span className="text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded-md">Pick</span>
+                              <span className="truncate max-w-[120px] text-slate-700" title={order.pickupLocation}>{order.pickupLocation || 'Biryani Zone'}</span>
+                              <span className="text-slate-350">→</span>
+                              <span className="text-[10px] bg-red-50 text-red-600 px-1.5 py-0.5 rounded-md">Drop</span>
+                              <span className="truncate max-w-[120px] text-slate-700" title={order.deliveryLocation}>{order.deliveryLocation || 'HSR Layout'}</span>
+                            </div>
+                          </div>
+
+                          {/* Earnings & Payment Mode */}
+                          <div className="min-w-[100px]">
+                            <span className="text-xs text-slate-400 font-bold uppercase block">{order.paymentMethod || 'Online'}</span>
+                            <span className="font-black text-slate-800 text-base">₹{totalPay.toFixed(2)}</span>
+                          </div>
+
+                          {/* Action Buttons */}
+                          <div className="flex items-center gap-2">
+                            <button 
+                              onClick={() => setSelectedOrder(order)}
+                              className="px-3.5 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-600 font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-xs"
+                            >
+                              <Eye className="h-3.5 w-3.5 text-slate-455" /> Details
+                            </button>
+                            {!isOrderActive && (
+                              <button 
+                                onClick={() => downloadMockInvoice(order._id)}
+                                className="p-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-600 transition-all shadow-xs"
+                                title="Download Invoice"
+                              >
+                                <Download className="h-3.5 w-3.5 text-slate-455" />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    }
 
                     return (
                       <div 

@@ -182,16 +182,16 @@ const Withdraw = () => {
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
         
         {/* Left card: Available Wallet Balance */}
-        <div className="md:col-span-6 bg-slate-900 text-white p-6 rounded-2xl shadow-lg relative overflow-hidden flex flex-col justify-between min-h-[220px]">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl"></div>
+        <div className="md:col-span-6 bg-gradient-to-br from-amber-500 to-yellow-600 text-slate-950 p-6 rounded-2xl shadow-lg relative overflow-hidden flex flex-col justify-between min-h-[220px]">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
           
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <WalletIcon className="h-5 w-5 text-blue-100" />
-                <span className="text-[11px] text-blue-100 font-extrabold uppercase tracking-wider">Available Wallet Balance</span>
+                <WalletIcon className="h-5 w-5 text-slate-950/80" />
+                <span className="text-[11px] text-slate-950/80 font-extrabold uppercase tracking-wider">Available Wallet Balance</span>
               </div>
-              <span className="text-[10px] text-blue-200 font-medium">Last updated {lastUpdated}</span>
+              <span className="text-[10px] text-slate-950/60 font-medium">Last updated {lastUpdated}</span>
             </div>
             <h3 className="text-4xl font-black">₹{balance.toFixed(2)}</h3>
           </div>
@@ -199,13 +199,13 @@ const Withdraw = () => {
           <div className="flex items-center gap-3 mt-6">
             <button 
               onClick={() => setWithdrawModalOpen(true)}
-              className="flex-1 bg-white hover:bg-slate-50 text-slate-900 font-black py-3 rounded-xl text-xs uppercase tracking-wider transition-all active:scale-95 shadow-sm text-center"
+              className="flex-1 bg-slate-950 hover:bg-slate-900 text-white font-black py-3 rounded-xl text-xs uppercase tracking-wider transition-all active:scale-95 shadow-md text-center"
             >
               Withdraw to Bank
             </button>
             <button 
               onClick={() => { setSearchQuery(''); setFilterType('All'); setTimeFilter('All'); }}
-              className="px-4 py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl text-xs transition-all border border-slate-700 active:scale-95"
+              className="px-4 py-3 bg-white/20 hover:bg-white/30 text-slate-950 font-bold rounded-xl text-xs transition-all border border-black/10 active:scale-95"
             >
               Clear Transactions
             </button>
@@ -307,15 +307,15 @@ const Withdraw = () => {
 
         {/* Ledger Table */}
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
+          <table className="w-full text-left text-sm">
             <thead>
               <tr className="border-b border-slate-200 text-slate-400 font-bold uppercase tracking-wider">
-                <th className="py-3 px-2">Transaction ID</th>
-                <th className="py-3 px-2">Date &amp; Time</th>
-                <th className="py-3 px-2">Description</th>
-                <th className="py-3 px-2">Type</th>
-                <th className="py-3 px-2 text-right">Amount</th>
-                <th className="py-3 px-2 text-center">Status</th>
+                <th className="py-3 px-3">Transaction ID</th>
+                <th className="py-3 px-3">Date &amp; Time</th>
+                <th className="py-3 px-3">Description</th>
+                <th className="py-3 px-3">Type</th>
+                <th className="py-3 px-3 text-right">Amount</th>
+                <th className="py-3 px-3 text-center">Status</th>
               </tr>
             </thead>
             <tbody>
@@ -339,17 +339,17 @@ const Withdraw = () => {
 
                   return (
                     <tr key={idx} className="border-b border-slate-100 hover:bg-slate-50/50 transition-all font-semibold text-slate-700">
-                      <td className="py-4.5 px-2 font-mono text-[10px] text-slate-400">
+                      <td className="py-3 px-3 font-mono text-xs text-slate-400">
                         #TXN-{(t._id || idx).toString().substring(0,8).toUpperCase()}
                       </td>
-                      <td className="py-4.5 px-2 text-slate-500">
+                      <td className="py-3 px-3 text-slate-500">
                         {dateStr}
                       </td>
-                      <td className="py-4.5 px-2">
+                      <td className="py-3 px-3">
                         {t.description}
                       </td>
-                      <td className="py-4.5 px-2">
-                        <span className={`px-2 py-0.5 rounded-md text-[10px] font-black uppercase ${
+                      <td className="py-3 px-3">
+                        <span className={`px-2 py-0.5 rounded-md text-xs font-black uppercase ${
                           displayType === 'Wallet Credit' ? 'bg-green-50 text-green-700' :
                           displayType === 'Withdrawal' ? 'bg-amber-50 text-amber-700' :
                           displayType === 'Refund' ? 'bg-blue-50 text-blue-700' : 'bg-slate-100 text-slate-600'
@@ -357,13 +357,13 @@ const Withdraw = () => {
                           {displayType}
                         </span>
                       </td>
-                      <td className={`py-4.5 px-2 text-right text-sm font-black ${
+                      <td className={`py-3 px-3 text-right text-base font-black ${
                         isCredit ? 'text-green-650' : 'text-red-500'
                       }`}>
                         {isCredit ? '+' : '-'}₹{t.amount.toFixed(2)}
                       </td>
-                      <td className="py-4.5 px-2 text-center">
-                        <span className="bg-green-50 text-green-700 text-[9px] font-black px-2 py-0.5 rounded-full uppercase border border-green-150">
+                      <td className="py-3 px-3 text-center">
+                        <span className="bg-green-50 text-green-700 text-xs font-black px-2 py-0.5 rounded-full uppercase border border-green-150">
                           Success
                         </span>
                       </td>
