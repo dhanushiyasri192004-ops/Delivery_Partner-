@@ -39,6 +39,26 @@
       "password": "$2a$10$OLaX6Y0MgRdAvCJEAt39FOJx2wnpUfQHRseLX/fS7Rrg5EGYFTe8q",
       "mobileNumber": "9988776655",
       "role": "executive"
+    },
+    {
+      "_id": "usr_travel_jbelths",
+      "createdAt": "2026-07-13T05:46:59.038Z",
+      "updatedAt": "2026-07-13T05:46:59.049Z",
+      "name": "Travel Executive",
+      "email": "travel_exec@test.com",
+      "password": "$2a$10$1iB3.mJUYgb.S9P4skpDHOSfyNAwwAAeWHmZF8JF.Mn02t0L.zUGG",
+      "mobileNumber": "9988001122",
+      "role": "executive"
+    },
+    {
+      "_id": "usr_stay_4thgecg",
+      "createdAt": "2026-07-13T05:46:59.049Z",
+      "updatedAt": "2026-07-13T05:46:59.049Z",
+      "name": "Stay Executive",
+      "email": "stay_exec@test.com",
+      "password": "$2a$10$1iB3.mJUYgb.S9P4skpDHOSfyNAwwAAeWHmZF8JF.Mn02t0L.zUGG",
+      "mobileNumber": "9988001133",
+      "role": "executive"
     }
   ],
   "deliveryPartners": [
@@ -116,6 +136,27 @@
       "updatedAt": "2026-07-13T04:43:05.688Z",
       "userId": "usr_iz4t168dr",
       "employeeId": "EXE-746794",
+      "executiveType": "travel",
+      "status": "online",
+      "isApproved": true
+    },
+    {
+      "_id": "exe_travel_h9maawe",
+      "createdAt": "2026-07-13T05:46:59.049Z",
+      "updatedAt": "2026-07-13T05:46:59.049Z",
+      "userId": "usr_travel_jbelths",
+      "employeeId": "EXE-TRV-117520",
+      "executiveType": "travel",
+      "status": "online",
+      "isApproved": true
+    },
+    {
+      "_id": "exe_stay_2aj01wg",
+      "createdAt": "2026-07-13T05:46:59.049Z",
+      "updatedAt": "2026-07-13T05:46:59.049Z",
+      "userId": "usr_stay_4thgecg",
+      "employeeId": "EXE-STY-955273",
+      "executiveType": "stay",
       "status": "online",
       "isApproved": true
     }
@@ -132,9 +173,9 @@
     {
       "_id": "szwc7jaff",
       "createdAt": "2026-07-08T09:50:42.037Z",
-      "updatedAt": "2026-07-12T18:07:11.686Z",
+      "updatedAt": "2026-07-14T10:51:38.978Z",
       "userId": "v3jl1j48t",
-      "balance": 590,
+      "balance": 190,
       "transactions": [
         {
           "amount": 270,
@@ -171,6 +212,12 @@
           "type": "credit",
           "description": "Earnings for Order #543210",
           "timestamp": "2026-07-12T18:07:11.684Z"
+        },
+        {
+          "amount": 400,
+          "type": "debit",
+          "description": "Withdrawal Request Submitted",
+          "timestamp": "2026-07-14T10:51:38.974Z"
         }
       ]
     },
@@ -187,6 +234,22 @@
       "createdAt": "2026-07-13T04:43:05.688Z",
       "updatedAt": "2026-07-13T04:43:05.688Z",
       "userId": "usr_iz4t168dr",
+      "balance": 0,
+      "transactions": []
+    },
+    {
+      "_id": "wlt_travel_61orv8b",
+      "createdAt": "2026-07-13T05:46:59.049Z",
+      "updatedAt": "2026-07-13T05:46:59.049Z",
+      "userId": "usr_travel_jbelths",
+      "balance": 0,
+      "transactions": []
+    },
+    {
+      "_id": "wlt_stay_kua77bv",
+      "createdAt": "2026-07-13T05:46:59.049Z",
+      "updatedAt": "2026-07-13T05:46:59.049Z",
+      "userId": "usr_stay_4thgecg",
       "balance": 0,
       "transactions": []
     }
@@ -513,6 +576,15 @@
       "amount": 120,
       "status": "pending",
       "requestDate": "2026-07-09T13:27:38.882Z"
+    },
+    {
+      "_id": "k343fyl5x",
+      "createdAt": "2026-07-14T10:51:38.988Z",
+      "updatedAt": "2026-07-14T10:51:38.988Z",
+      "userId": "v3jl1j48t",
+      "amount": 400,
+      "status": "pending",
+      "requestDate": "2026-07-14T10:51:38.985Z"
     }
   ]
 }

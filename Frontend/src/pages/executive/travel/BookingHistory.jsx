@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchTripHistory } from '../../redux/slices/executiveSlice';
-import { Navigation, Calendar, CheckCircle } from 'lucide-react';
+import { fetchTripHistory } from '../../../redux/slices/executiveSlice';
+import { Navigation, Calendar } from 'lucide-react';
 
 const BookingHistory = () => {
   const dispatch = useDispatch();
@@ -12,13 +12,7 @@ const BookingHistory = () => {
   }, [dispatch]);
 
   return (
-    <div className="space-y-6 max-w-4xl animate-fade-in">
-      <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-bold text-slate-800">Trip History</h2>
-          <p className="text-xs text-slate-400">Review your past logged business travel trips</p>
-        </div>
-      </div>
+    <div className="space-y-6 max-w-4xl animate-fade-in text-slate-800">
 
       <div className="space-y-4">
         {history.length === 0 ? (

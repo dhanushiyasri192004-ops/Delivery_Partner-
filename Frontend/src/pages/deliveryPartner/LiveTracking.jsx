@@ -4,10 +4,6 @@ import { Compass } from 'lucide-react';
 const LiveTracking = () => {
   return (
     <div className="space-y-6 max-w-4xl animate-fade-in">
-      <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
-        <h2 className="text-xl font-bold text-slate-800">Live GPS Tracking</h2>
-        <p className="text-xs text-slate-400">Map and route parameters for active deliveries</p>
-      </div>
 
       <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
         <div className="h-[450px] bg-slate-100 relative flex items-center justify-center">

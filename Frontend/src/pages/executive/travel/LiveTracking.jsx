@@ -1,5 +1,5 @@
 import React from 'react';
-import LiveTrackingWrapper from '../deliveryPartner/LiveTracking';
+import LiveTrackingWrapper from '../../deliveryPartner/LiveTracking';
 
 const LiveTracking = () => {
   return <LiveTrackingWrapper />;

@@ -359,7 +359,7 @@ const Notifications = () => {
 
             {/* Chat Input */}
             <form onSubmit={handleSupportSend} className="p-4 border-t border-slate-100 bg-slate-50 flex items-center gap-3">
-              <button type="button" onClick={() => alert('Attachments limit: 2MB')} className="p-2 bg-white hover:bg-slate-100 rounded-xl border border-slate-200 text-slate-400 transition-all">
+              <button type="button" onClick={() => {}} className="p-2 bg-white hover:bg-slate-100 rounded-xl border border-slate-200 text-slate-400 transition-all">
                 <Paperclip className="h-4.5 w-4.5" />
               </button>
               <input
@@ -485,7 +485,7 @@ const Notifications = () => {
 
                 {/* Send chat block */}
                 <form onSubmit={handleCustomerSend} className="p-4 border-t border-slate-100 bg-slate-50 flex items-center gap-3">
-                  <button type="button" onClick={() => alert('Attachments limit: 2MB')} className="p-2 bg-white hover:bg-slate-100 rounded-xl border border-slate-200 text-slate-400 transition-all">
+                  <button type="button" onClick={() => {}} className="p-2 bg-white hover:bg-slate-100 rounded-xl border border-slate-200 text-slate-400 transition-all">
                     <Paperclip className="h-4.5 w-4.5" />
                   </button>
                   <input

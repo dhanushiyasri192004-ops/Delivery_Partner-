@@ -25,8 +25,8 @@ const PickupVerification = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (!otp) return alert('Please enter OTP code');
-    if (!photo) return alert('Please capture / upload pickup photo');
+    if (!otp) return;
+    if (!photo) return;
 
     const formData = new FormData();
     formData.append('otp', otp);

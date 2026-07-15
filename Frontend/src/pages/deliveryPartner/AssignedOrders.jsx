@@ -18,12 +18,6 @@ const AssignedOrders = () => {
 
   return (
     <div className="space-y-6 max-w-4xl">
-      <div className="flex justify-between items-center bg-white p-5 rounded-2xl border border-slate-100 shadow-sm animate-fade-in">
-        <div>
-          <h2 className="text-xl font-bold text-slate-800">Assigned Orders</h2>
-          <p className="text-xs text-slate-400">Manage incoming dispatches awaiting your approval</p>
-        </div>
-      </div>
 
       {assignedOrder ? (
         <div className="bg-white rounded-2xl border border-slate-150 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300">

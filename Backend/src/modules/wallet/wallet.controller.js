@@ -92,7 +92,8 @@ const requestWithdrawal = async (req, res, next) => {
         success: true,
         message: 'Withdrawal request submitted successfully',
         withdrawal,
-        balance: newBalance
+        balance: newBalance,
+        transactions
       });
     }
 
@@ -125,7 +126,8 @@ const requestWithdrawal = async (req, res, next) => {
       success: true,
       message: 'Withdrawal request submitted successfully',
       withdrawal,
-      balance: wallet.balance
+      balance: wallet.balance,
+      transactions: wallet.transactions
     });
   } catch (error) {
     next(error);

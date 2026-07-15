@@ -38,13 +38,34 @@ import TechnicianNotifications from './pages/technician/Notifications';
 import TechnicianProfile from './pages/technician/Profile';
 import TechnicianWallet from './pages/technician/Wallet';
 
-// Executive Pages
+// Executive Switchers
 import ExecutiveDashboard from './pages/executive/Dashboard';
-import AssignedBookings from './pages/executive/AssignedBookings';
-import BookingHistory from './pages/executive/BookingHistory';
-import ExecutiveLiveTracking from './pages/executive/LiveTracking';
-import ExecutiveWallet from './pages/executive/Wallet';
-import ExecutiveProfile from './pages/executive/Profile';
+import ExecutiveNotifications from './pages/executive/Notifications';
+import ExecutiveSettings from './pages/executive/Settings';
+import ExecutivePayments from './pages/executive/Payments';
+import ExecutiveReports from './pages/executive/Reports';
+
+// Stay Executive Pages
+import RoomBookings from './pages/executive/stay/RoomBookings';
+import RoomManagement from './pages/executive/stay/RoomManagement';
+import Housekeeping from './pages/executive/stay/Housekeeping';
+import GuestManagement from './pages/executive/stay/GuestManagement';
+import CheckinCheckout from './pages/executive/stay/CheckinCheckout';
+import ComplaintsSupport from './pages/executive/stay/ComplaintsSupport';
+import Maintenance from './pages/executive/Maintenance';
+import StaffManagement from './pages/executive/StaffManagement';
+
+// Travel Executive Pages
+import AssignedBookings from './pages/executive/travel/AssignedBookings';
+import Buses from './pages/executive/travel/Buses';
+import TravelRoutes from './pages/executive/travel/Routes';
+import Schedules from './pages/executive/travel/Schedules';
+import Passengers from './pages/executive/travel/Passengers';
+import Cancelations from './pages/executive/travel/Cancelations';
+
+
+// Shared Pages
+import MembershipCard from './pages/shared/MembershipCard';
 
 function App() {
   return (
@@ -76,6 +97,7 @@ function App() {
             <Route path="notifications" element={<Notifications />} />
             <Route path="profile" element={<Profile />} />
             <Route path="settings" element={<Settings />} />
+            <Route path="membership" element={<MembershipCard />} />
           </Route>
 
           {/* Service Technician Console */}
@@ -89,16 +111,33 @@ function App() {
             <Route path="notifications" element={<TechnicianNotifications />} />
             <Route path="profile" element={<TechnicianProfile />} />
             <Route path="settings" element={<Settings />} />
+            <Route path="membership" element={<MembershipCard />} />
           </Route>
 
           {/* Corporate Executive Console */}
           <Route path="/executive" element={<DashboardLayout />}>
             <Route path="dashboard" element={<ExecutiveDashboard />} />
             <Route path="trips" element={<AssignedBookings />} />
-            <Route path="history" element={<BookingHistory />} />
-            <Route path="tracking" element={<ExecutiveLiveTracking />} />
-            <Route path="wallet" element={<ExecutiveWallet />} />
-            <Route path="profile" element={<ExecutiveProfile />} />
+            <Route path="buses" element={<Buses />} />
+            <Route path="routes" element={<TravelRoutes />} />
+            <Route path="schedules" element={<Schedules />} />
+            <Route path="passengers" element={<Passengers />} />
+            <Route path="cancelations" element={<Cancelations />} />
+            
+            <Route path="profile" element={<Navigate to="/executive/settings" replace />} />
+            <Route path="bookings" element={<RoomBookings />} />
+            <Route path="rooms" element={<RoomManagement />} />
+            <Route path="housekeeping" element={<Housekeeping />} />
+            <Route path="guests" element={<GuestManagement />} />
+            <Route path="checkin-checkout" element={<CheckinCheckout />} />
+            <Route path="payments" element={<ExecutivePayments />} />
+            <Route path="complaints" element={<ComplaintsSupport />} />
+            <Route path="maintenance" element={<Maintenance />} />
+            <Route path="staff" element={<StaffManagement />} />
+            <Route path="notifications" element={<ExecutiveNotifications />} />
+            <Route path="reports" element={<ExecutiveReports />} />
+            <Route path="settings" element={<ExecutiveSettings />} />
+            <Route path="membership" element={<MembershipCard />} />
           </Route>
 
           {/* Fallback Redirect */}

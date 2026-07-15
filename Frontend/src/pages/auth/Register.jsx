@@ -18,6 +18,7 @@ const Register = () => {
   const { loading, error, isAuthenticated, user } = useSelector((state) => state.auth);
 
   const [step, setStep] = useState(1);
+  const [localError, setLocalError] = useState('');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -44,7 +45,10 @@ const Register = () => {
 
     // Declaration
     termsDecl: false,
-    privacyDecl: false
+    privacyDecl: false,
+
+    // Executive
+    executiveType: 'travel'
   });
 
   const [rcBookFile, setRcBookFile] = useState(null);
@@ -64,17 +68,86 @@ const Register = () => {
   const handleChange = (e) => {
     const val = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
     setFormData({ ...formData, [e.target.name]: val });
+    if (localError) setLocalError('');
   };
 
   const handleFileChange = (e) => {
     setRcBookFile(e.target.files[0]);
+    if (localError) setLocalError('');
   };
 
-  const nextStep = () => setStep(step + 1);
-  const prevStep = () => setStep(step - 1);
+  const validateStep = (currentStep) => {
+    if (currentStep === 1) {
+      if (!formData.name.trim()) return 'Full name is required';
+      if (!formData.email.trim() || !/\S+@\S+\.\S+/.test(formData.email)) return 'Enter a valid email address';
+      
+      // Password validation: capital letter, number, special character, min length 8
+      const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]).{8,}$/;
+      if (!passwordRegex.test(formData.password)) {
+        return 'Password must be at least 8 characters long and contain at least one uppercase letter, one number, and one special character';
+      }
+      
+      // Mobile number: exactly 10 digits
+      if (!/^\d{10}$/.test(formData.mobileNumber)) {
+        return 'Mobile number must be exactly 10 digits';
+      }
+      
+      // Aadhaar number: exactly 12 digits
+      if (!/^\d{12}$/.test(formData.aadhaarNumber)) {
+        return 'Aadhaar number must be exactly 12 digits';
+      }
+
+      // PAN Number validation
+      if (!/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/i.test(formData.panNumber)) {
+        return 'Enter a valid 10-character PAN card number (e.g. ABCDE1234F)';
+      }
+    } else if (currentStep === 2) {
+      if (formData.role === 'delivery_partner') {
+        if (!formData.vehicleName.trim()) return 'Vehicle Name is required';
+        if (!formData.vehicleNumber.trim()) return 'Vehicle License Plate number is required';
+        if (!formData.licenseNumber.trim()) return 'Driving License Number is required';
+        if (!rcBookFile) return 'Please upload RC Book PDF / Image';
+      }
+    } else if (currentStep === 3) {
+      // bank details only apply to delivery partner and technician
+      if (formData.role === 'delivery_partner' || formData.role === 'technician') {
+        if (!formData.bankName.trim()) return 'Bank Name is required';
+        if (!formData.accountHolderName.trim()) return 'Account Holder Name is required';
+        if (!/^[A-Z]{4}0[A-Z0-9]{6}$/i.test(formData.ifscCode)) {
+          return 'Enter a valid 11-character bank IFSC code (e.g. SBIN0001234)';
+        }
+        if (!/^\d{9,18}$/.test(formData.accountNumber)) {
+          return 'Account number must be between 9 and 18 digits';
+        }
+        if (!formData.branch.trim()) return 'Branch name is required';
+      }
+    }
+    return null;
+  };
+
+  const nextStep = () => {
+    const validationError = validateStep(step);
+    if (validationError) {
+      setLocalError(validationError);
+      return;
+    }
+    setLocalError('');
+    setStep(step + 1);
+  };
+
+  const prevStep = () => {
+    setLocalError('');
+    setStep(step - 1);
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const validationError = validateStep(step);
+    if (validationError) {
+      setLocalError(validationError);
+      return;
+    }
+    setLocalError('');
     
     const apiData = new FormData();
     Object.keys(formData).forEach((key) => {
@@ -113,9 +186,9 @@ const Register = () => {
         })}
       </div>
 
-      {error && (
+      {(error || localError) && (
         <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-lg text-sm mb-6">
-          ⚠️ {error}
+          ⚠️ {error || localError}
         </div>
       )}
 
@@ -169,6 +242,7 @@ const Register = () => {
                 required
                 value={formData.mobileNumber}
                 onChange={handleChange}
+                maxLength={10}
                 className="w-full bg-slate-900 border border-slate-700/60 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-brand/40"
               />
             </div>
@@ -183,6 +257,7 @@ const Register = () => {
                 required
                 value={formData.aadhaarNumber}
                 onChange={handleChange}
+                maxLength={12}
                 className="w-full bg-slate-900 border border-slate-700/60 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-brand/40"
               />
             </div>
@@ -194,6 +269,7 @@ const Register = () => {
                 required
                 value={formData.panNumber}
                 onChange={handleChange}
+                maxLength={10}
                 className="w-full bg-slate-900 border border-slate-700/60 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-brand/40"
               />
             </div>
@@ -225,9 +301,9 @@ const Register = () => {
               onChange={handleChange}
               className="w-full bg-slate-900 border border-slate-700/60 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-brand/40"
             >
-              <option value="delivery_partner">🛵 Delivery Partner</option>
-              <option value="technician">🔧 Technician Field Agent</option>
-              <option value="executive">👔 Operations Executive</option>
+              <option value="delivery_partner">Delivery Partner</option>
+              <option value="technician">Technician Field Agent</option>
+              <option value="executive">Operations Executive</option>
             </select>
           </div>
 
@@ -306,9 +382,23 @@ const Register = () => {
           )}
 
           {formData.role === 'executive' && (
-            <p className="text-sm text-slate-400 bg-slate-900 p-4 rounded-xl border border-slate-700/30">
-              ℹ️ Corporate Executives are registered directly onto the central dispatch network. No further credentials are required for step 2.
-            </p>
+            <div className="space-y-4 pt-2">
+              <div>
+                <label className="block text-xs font-semibold text-slate-400 mb-1">Executive Category Assignment</label>
+                <select
+                  name="executiveType"
+                  value={formData.executiveType}
+                  onChange={handleChange}
+                  className="w-full bg-slate-900 border border-slate-700/60 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-brand/40"
+                >
+                  <option value="travel">Travel Operations Executive</option>
+                  <option value="stay">Stay Operations Executive</option>
+                </select>
+              </div>
+              <p className="text-xs text-slate-400 bg-slate-900 p-4 rounded-xl border border-slate-700/30">
+                ℹ️ Corporate Executives are registered directly onto the central dispatch network. No further credentials are required for step 2.
+              </p>
+            </div>
           )}
 
           <div className="pt-4 flex justify-between">
@@ -372,6 +462,7 @@ const Register = () => {
                 placeholder="e.g. SBIN0001234"
                 value={formData.ifscCode}
                 onChange={handleChange}
+                maxLength={11}
                 className="w-full bg-slate-900 border border-slate-700/60 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-brand/40"
               />
             </div>
@@ -383,6 +474,7 @@ const Register = () => {
                 required
                 value={formData.accountNumber}
                 onChange={handleChange}
+                maxLength={18}
                 className="w-full bg-slate-900 border border-slate-700/60 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-brand/40"
               />
             </div>

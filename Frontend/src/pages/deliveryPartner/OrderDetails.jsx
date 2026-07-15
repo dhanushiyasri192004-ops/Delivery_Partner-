@@ -148,8 +148,8 @@ const OrderDetails = () => {
 
   const handlePickupSubmit = (e) => {
     e.preventDefault();
-    if (!pickupPin) return alert('Please enter Pickup PIN');
-    if (!pickupPhoto) return alert('Please upload confirmation photo');
+    if (!pickupPin) return;
+    if (!pickupPhoto) return;
 
     const formData = new FormData();
     formData.append('otp', pickupPin);
@@ -172,8 +172,8 @@ const OrderDetails = () => {
 
   const handleDeliverySubmit = (e) => {
     e.preventDefault();
-    if (!deliveryOtp) return alert('Please enter Delivery OTP');
-    if (!deliveryPhoto) return alert('Please upload confirmation photo');
+    if (!deliveryOtp) return;
+    if (!deliveryPhoto) return;
 
     const formData = new FormData();
     formData.append('otp', deliveryOtp);

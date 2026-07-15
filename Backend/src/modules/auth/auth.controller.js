@@ -36,7 +36,10 @@ const register = async (req, res, next) => {
       accountHolderName,
       ifscCode,
       accountNumber,
-      branch
+      branch,
+
+      // Executive Profile parameters
+      executiveType
     } = req.body;
 
     // Check database connection mode fallback
@@ -106,6 +109,7 @@ const register = async (req, res, next) => {
         profileData = mockDb.create('executives', {
           userId: user._id,
           employeeId: 'EXE-' + Math.floor(100000 + Math.random() * 900000),
+          executiveType: executiveType || 'travel',
           status: 'online',
           isApproved: true
         });
@@ -195,7 +199,8 @@ const register = async (req, res, next) => {
       const employeeId = 'EXE-' + Math.floor(100000 + Math.random() * 900000);
       const executiveProfile = await Executive.create({
         userId: user._id,
-        employeeId
+        employeeId,
+        executiveType: executiveType || 'travel'
       });
       profileData = executiveProfile;
     }

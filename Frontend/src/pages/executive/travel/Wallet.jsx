@@ -1,5 +1,5 @@
 import React from 'react';
-import WalletWrapper from '../deliveryPartner/Wallet';
+import WalletWrapper from '../../deliveryPartner/Wallet';
 
 const Wallet = () => {
   return <WalletWrapper />;

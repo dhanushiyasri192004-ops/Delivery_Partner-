@@ -1046,7 +1046,7 @@ const AssignedServices = () => {
             </a>
 
             <button
-              onClick={() => activeJob && alert(`Redirecting to Chat with ${activeJob.customerName}`)}
+              onClick={() => {}}
               className={`p-3 rounded-2xl border flex flex-col items-center justify-center gap-1 transition-all ${
                 activeJob 
                   ? 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-750' 

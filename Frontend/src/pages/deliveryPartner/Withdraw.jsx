@@ -73,21 +73,25 @@ const Withdraw = () => {
     dispatch(fetchWalletDetails());
   }, [dispatch]);
 
+  const [withdrawError, setWithdrawError] = useState('');
+
   const handleWithdrawSubmit = (e) => {
     e.preventDefault();
     const amountNum = parseFloat(withdrawAmount);
     if (isNaN(amountNum) || amountNum < 100) {
-      return alert('Minimum withdrawal amount is ₹100');
+      return setWithdrawError('Minimum withdrawal amount is ₹100');
     }
     if (amountNum > balance) {
-      return alert('Insufficient balance in your wallet');
+      return setWithdrawError('Insufficient balance in your wallet');
     }
+    setWithdrawError('');
     setShowConfirmModal(true);
   };
 
   const handleConfirmWithdrawal = () => {
     dispatch(submitWithdrawalRequest(withdrawAmount)).then((res) => {
       if (!res.error) {
+        dispatch(fetchWalletDetails());
         setSuccessMsg(`Payout request of ₹${withdrawAmount} submitted successfully!`);
         setWithdrawAmount('');
         setShowConfirmModal(false);
@@ -520,6 +524,9 @@ const Withdraw = () => {
                     Max
                   </button>
                 </div>
+                {withdrawError && (
+                  <p className="text-red-500 text-xs font-bold text-center mt-1">{withdrawError}</p>
+                )}
                 <span className="text-[10px] text-slate-400 block mt-1.5 text-right font-medium">
                   Available Balance: ₹{balance.toFixed(2)}
                 </span>

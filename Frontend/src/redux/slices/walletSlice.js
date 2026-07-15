@@ -70,6 +70,9 @@ const walletSlice = createSlice({
         state.error = null;
         state.balance = action.payload.balance;
         state.withdrawals.unshift(action.payload.withdrawal);
+        if (action.payload.transactions) {
+          state.transactions = action.payload.transactions;
+        }
       })
       .addCase(submitWithdrawalRequest.rejected, (state, action) => {
         state.loading = false;

@@ -54,7 +54,7 @@ const Profile = () => {
             </div>
             <div className="flex justify-between items-center py-3">
               <span className="text-slate-450 font-semibold">Aadhaar Number</span>
-              <span className="font-black text-slate-750">•••• •••• {profile?.aadhaarNumber?.slice(-4) || '5656'}</span>
+              <span className="font-black text-slate-750">•••• •••• {profile?.aadhaarNumber ? profile.aadhaarNumber.slice(-4) : '5656'}</span>
             </div>
             <div className="flex justify-between items-center py-3">
               <span className="text-slate-450 font-semibold">PAN Number</span>
@@ -78,11 +78,11 @@ const Profile = () => {
               </div>
               <div className="flex justify-between items-center py-3">
                 <span className="text-slate-450 font-semibold">License Plate</span>
-                <span className="font-black text-slate-750 uppercase">{profile?.vehicle?.number || 'KA-12-AB-2342'}</span>
+                <span className="font-black text-slate-755 uppercase">{profile?.vehicle?.number || 'KA-12-AB-2342'}</span>
               </div>
               <div className="flex justify-between items-center py-3">
                 <span className="text-slate-450 font-semibold">License Number</span>
-                <span className="font-black text-slate-750 uppercase">{profile?.vehicle?.licenseNumber || '345765756867'}</span>
+                <span className="font-black text-slate-755 uppercase">{profile?.vehicle?.licenseNumber || '345765756867'}</span>
               </div>
               <div className="flex justify-between items-center py-3">
                 <span className="text-slate-450 font-semibold">RC Book Proof</span>
@@ -109,13 +109,13 @@ const Profile = () => {
             
             <div className="divide-y divide-slate-100 text-xs">
               <div className="flex justify-between items-center py-3">
-                <span className="text-slate-450 font-semibold">Specialty Category</span>
+                <span className="text-slate-455 font-semibold">Specialty Category</span>
                 <span className="font-black text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded border border-blue-100 uppercase">
                   {profile?.technicianType || 'Appliances'}
                 </span>
               </div>
               <div className="flex justify-between items-center py-3">
-                <span className="text-slate-450 font-semibold">Verification Status</span>
+                <span className="text-slate-455 font-semibold">Verification Status</span>
                 <span className="text-green-600 font-black">Active &amp; Approved</span>
               </div>
             </div>

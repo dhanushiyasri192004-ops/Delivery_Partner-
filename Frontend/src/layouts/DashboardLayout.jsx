@@ -3,6 +3,7 @@ import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../redux/slices/authSlice';
 import { updateOnlineStatus } from '../redux/slices/deliverySlice';
+import { setNotifications, markAllRead, markSingleRead } from '../redux/slices/notificationSlice';
 import { 
   LayoutDashboard, 
   MapPin, 
@@ -32,7 +33,14 @@ import {
   MessageSquare,
   HelpCircle,
   AlertTriangle,
-  Calendar
+  Calendar,
+  Hotel,
+  Sparkles,
+  Users,
+  AlertCircle,
+  Bus,
+  Clock,
+  XCircle
 } from 'lucide-react';
 import { io } from 'socket.io-client';
 
@@ -94,6 +102,7 @@ const DashboardLayout = () => {
     serviceArea: 'Koramangala, HSR Layout, JP Nagar',
     availableServices: 'Installation, Gas Filling, General Service, Repair'
   });
+  const [bizFormError, setBizFormError] = useState('');
 
   // Sync businesses to localStorage
   useEffect(() => {
@@ -118,6 +127,27 @@ const DashboardLayout = () => {
       else if (partnerStatus === 'online') setShiftStatus('active');
     }
   }, [partnerStatus, user?.role]);
+
+  // Initialize mock notifications for Stay/Travel Executive
+  useEffect(() => {
+    if (user?.role === 'executive') {
+      const isStay = profile?.executiveType === 'stay';
+      const mockNotifications = isStay ? [
+        { title: 'New Booking Alert', message: 'New booking received from Amit Sharma (Room 101)', isRead: false, time: '10:30 AM' },
+        { title: 'Check-in Alert', message: 'Guest Priya Patel checked-in (Room 202)', isRead: false, time: '09:45 AM' },
+        { title: 'Payment Alert', message: 'Payment of ₹3,500 received from Room 202', isRead: false, time: '09:15 AM' },
+        { title: 'Housekeeping Alert', message: 'Housekeeping completed in Room 305', isRead: true, time: '08:30 AM' },
+        { title: 'Maintenance Alert', message: 'Maintenance request for Room 104', isRead: true, time: '08:15 AM' }
+      ] : [
+        { title: 'New Booking Alert', message: 'Bus booking received for Trip #1034', isRead: false, time: '10:15 AM' },
+        { title: 'Schedule Alert', message: 'Bus KA-01-F-1234 has departed', isRead: false, time: '09:30 AM' }
+      ];
+      
+      if (notificationList.length === 0) {
+        dispatch(setNotifications(mockNotifications));
+      }
+    }
+  }, [user, profile, dispatch, notificationList.length]);
 
   // Initialize Socket connection
   useEffect(() => {
@@ -182,6 +212,14 @@ const DashboardLayout = () => {
         'profile': 'Profile'
       };
       return mapping[lastSegment] || lastSegment.replace('-', ' ');
+    }
+    if (path.startsWith('/executive/')) {
+      const mapping = {
+        dashboard: 'Dashboard',
+        settings: 'Profile & Settings',
+        profile: 'Profile & Settings',
+      };
+      return mapping[lastSegment] || lastSegment.replace(/-/g, ' ');
     }
     return lastSegment?.replace('-', ' ') || 'Dashboard';
   };
@@ -249,6 +287,30 @@ const DashboardLayout = () => {
     setShowCameraModal(false);
   };
 
+  const handleNotificationClick = (n) => {
+    dispatch(markSingleRead(n.title));
+    setShowNotifications(false);
+    
+    const msg = (n.message || '').toLowerCase();
+    const title = (n.title || '').toLowerCase();
+    
+    if (title.includes('booking') || msg.includes('booking')) {
+      navigate('/executive/bookings');
+    } else if (title.includes('check-in') || msg.includes('check-in') || title.includes('check-out') || msg.includes('check-out')) {
+      navigate('/executive/checkin-checkout');
+    } else if (title.includes('payment') || msg.includes('payment') || msg.includes('₹')) {
+      navigate('/executive/payments');
+    } else if (title.includes('housekeeping') || msg.includes('housekeeping')) {
+      navigate('/executive/housekeeping');
+    } else if (title.includes('maintenance') || msg.includes('maintenance')) {
+      navigate('/executive/maintenance');
+    } else if (title.includes('complaint') || msg.includes('complaint')) {
+      navigate('/executive/complaints');
+    } else {
+      navigate('/executive/dashboard');
+    }
+  };
+
   const handleConfirmCheckOut = () => {
     if (user?.role === 'delivery_partner') {
       dispatch(updateOnlineStatus('offline'));
@@ -261,14 +323,18 @@ const DashboardLayout = () => {
   // Add new business submission
   const handleAddBusinessSubmit = (e) => {
     e.preventDefault();
-    if (!newBizFormData.businessName) return alert('Please enter Business Name');
+    if (!newBizFormData.businessName) {
+      setBizFormError('Please enter Business Name');
+      return;
+    }
     
     // Save to businesses list
     const cleanBizType = newBizFormData.businessType.replace(' Technician', '').replace(' Repair', '');
     if (businesses.includes(cleanBizType)) {
-      alert('Business category already exists!');
+      setBizFormError('Business category already exists!');
       return;
     }
+    setBizFormError('');
 
     setBusinesses((prev) => [...prev, cleanBizType]);
     setSelectedBusiness(cleanBizType);
@@ -296,16 +362,44 @@ const DashboardLayout = () => {
           { name: 'My Orders', path: '/delivery/orders', icon: ShoppingBag },
           { name: 'Earnings', path: '/delivery/wallet', icon: CreditCard },
           { name: 'Wallet', path: '/delivery/withdraw', icon: Wallet },
+          { name: 'Membership Card', path: '/delivery/membership', icon: CreditCard },
           { name: 'Performance', path: '/delivery/history', icon: PieChart },
           { name: 'Chat Support', path: '/delivery/notifications', icon: Headphones },
           { name: 'Settings', path: '/delivery/settings', icon: Settings },
         ];
       case 'executive':
-        return [
-          { name: 'Dashboard', path: '/executive/dashboard', icon: LayoutDashboard },
-          { name: 'Assigned Trips', path: '/executive/trips', icon: MapPin },
-          { name: 'Profile', path: '/executive/profile', icon: User },
-        ];
+        {
+          const isStay = profile?.executiveType === 'stay';
+          if (isStay) {
+            return [
+              { name: 'Dashboard', path: '/executive/dashboard', icon: LayoutDashboard },
+              { name: 'Room Bookings', path: '/executive/bookings', icon: Calendar },
+              { name: 'Room Management', path: '/executive/rooms', icon: Hotel },
+              { name: 'Check-in / Check-out', path: '/executive/checkin-checkout', icon: CheckCircle },
+              { name: 'Housekeeping', path: '/executive/housekeeping', icon: Sparkles },
+              { name: 'Maintenance', path: '/executive/maintenance', icon: Wrench },
+              { name: 'Complaints', path: '/executive/complaints', icon: AlertCircle },
+              { name: 'Payments & Bills', path: '/executive/payments', icon: CreditCard },
+              { name: 'Guest Directory', path: '/executive/guests', icon: User },
+              { name: 'Reports & Stats', path: '/executive/reports', icon: FileText },
+              { name: 'Notifications', path: '/executive/notifications', icon: Bell, badge: 5 },
+              { name: 'Profile & Settings', path: '/executive/settings', icon: Settings },
+            ];
+          }
+          return [
+            { name: 'Dashboard', path: '/executive/dashboard', icon: LayoutDashboard },
+            { name: 'Bookings', path: '/executive/trips', icon: Calendar },
+            { name: 'Buses', path: '/executive/buses', icon: Bus },
+            { name: 'Routes', path: '/executive/routes', icon: MapPin },
+            { name: 'Schedules', path: '/executive/schedules', icon: Clock },
+            { name: 'Passengers', path: '/executive/passengers', icon: Users },
+            { name: 'Payments', path: '/executive/payments', icon: CreditCard },
+            { name: 'Reports', path: '/executive/reports', icon: FileText },
+            { name: 'Cancelations', path: '/executive/cancelations', icon: XCircle },
+            { name: 'Notifications', path: '/executive/notifications', icon: Bell },
+            { name: 'Profile & Settings', path: '/executive/settings', icon: Settings },
+          ];
+        }
       default:
         return [];
     }
@@ -445,6 +539,7 @@ const DashboardLayout = () => {
                     { name: 'Payments', icon: CreditCard },
                     { name: 'Reviews', icon: Star },
                     { name: 'Reports', icon: FileText },
+                    { name: 'Membership Card', icon: CreditCard, path: '/technician/membership' },
                     { name: 'Notifications', icon: Bell }
                   ].map((menuItem) => {
                     const isActive = activeMenu === menuItem.name;
@@ -454,7 +549,11 @@ const DashboardLayout = () => {
                         key={menuItem.name}
                         onClick={() => {
                           setActiveMenu(menuItem.name);
-                          navigate('/technician/dashboard');
+                          if (menuItem.path) {
+                            navigate(menuItem.path);
+                          } else {
+                            navigate('/technician/dashboard');
+                          }
                         }}
                         className={`flex items-center w-full px-3 py-2 text-sm font-bold rounded-xl transition-all ${
                           isActive 
@@ -474,19 +573,28 @@ const DashboardLayout = () => {
               // Standard Navigation links for delivery/executive
               navLinks.map((link) => {
                 const Icon = link.icon;
-                const isActive = location.pathname === link.path;
+                const isActive = location.pathname === link.path || (
+                  link.path === '/executive/settings' && location.pathname === '/executive/profile'
+                );
                 return (
                   <Link
                     key={link.name}
                     to={link.path}
-                    className={`group flex items-center px-3 py-2.5 text-sm font-bold rounded-xl transition-all ${
+                    className={`group flex items-center justify-between px-3 py-2.5 text-sm font-bold rounded-xl transition-all ${
                       isActive 
                         ? 'bg-brand text-slate-900 font-extrabold shadow shadow-brand/10' 
                         : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
                     }`}
                   >
-                    <Icon className={`mr-2 h-4.5 w-4.5 ${isActive ? 'text-slate-900' : 'text-slate-400 group-hover:text-slate-500'}`} />
-                    {link.name}
+                    <div className="flex items-center">
+                      <Icon className={`mr-2 h-4.5 w-4.5 ${isActive ? 'text-slate-900' : 'text-slate-400 group-hover:text-slate-500'}`} />
+                      {link.name}
+                    </div>
+                    {link.badge && (
+                      <span className="bg-red-500 text-white font-extrabold text-[10.5px] h-5 w-5 rounded-full flex items-center justify-center border border-white">
+                        {link.badge}
+                      </span>
+                    )}
                   </Link>
                 );
               })
@@ -531,6 +639,15 @@ const DashboardLayout = () => {
                 </h2>
                 <p className="text-xs text-slate-600 font-bold mt-1">Technician Dispatch Console</p>
               </div>
+            ) : location.pathname === '/executive/dashboard' ? (
+              <div>
+                <h2 className="text-xl font-extrabold text-slate-800 tracking-tight leading-tight">
+                  Welcome, {user?.name || 'Executive'}
+                </h2>
+                <p className="text-xs text-slate-600 font-bold mt-1">
+                  {new Date().toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' })}
+                </p>
+              </div>
             ) : (
               <h1 className="text-lg font-extrabold text-slate-800 capitalize">
                 {getPageTitle()}
@@ -555,12 +672,17 @@ const DashboardLayout = () => {
               {/* Notification drop menu */}
               {showNotifications && (
                 <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl border border-slate-200 py-2 z-50">
-                  <div className="px-4 py-2 border-b border-slate-150 font-semibold text-slate-700 flex justify-between items-center">
+                  <div className="px-4 py-2 border-b border-slate-150 font-semibold text-slate-700 flex justify-between items-center text-xs">
                     <span>Recent Notifications</span>
-                    {unreadNotifications > 0 && (
-                      <span className="text-[10px] bg-red-100 text-red-700 font-bold px-2 py-0.5 rounded-full">
-                        {unreadNotifications} New
-                      </span>
+                    {unreadNotifications > 0 ? (
+                      <button 
+                        onClick={() => dispatch(markAllRead())}
+                        className="text-[10px] text-blue-600 hover:underline font-extrabold cursor-pointer"
+                      >
+                        Mark all read
+                      </button>
+                    ) : (
+                      <span className="text-[10px] text-slate-400 font-bold">All read</span>
                     )}
                   </div>
                   <div className="max-h-60 overflow-y-auto">
@@ -570,9 +692,16 @@ const DashboardLayout = () => {
                       </div>
                     ) : (
                       notificationList.map((n, i) => (
-                        <div key={i} className="px-4 py-3 hover:bg-slate-50 border-b border-slate-100">
-                          <p className="text-sm font-semibold text-slate-800">{n.title}</p>
-                          <p className="text-xs text-slate-500 mt-0.5">{n.message}</p>
+                        <div 
+                          key={i} 
+                          onClick={() => handleNotificationClick(n)}
+                          className={`px-4 py-3 hover:bg-slate-50 border-b border-slate-100 cursor-pointer transition-all ${!n.isRead ? 'bg-blue-50/40' : ''}`}
+                        >
+                          <div className="flex justify-between items-start">
+                            <p className="text-xs font-extrabold text-slate-800">{n.title}</p>
+                            {!n.isRead && <span className="w-1.5 h-1.5 rounded-full bg-blue-600 mt-1"></span>}
+                          </div>
+                          <p className="text-[10px] text-slate-500 mt-0.5 font-semibold leading-relaxed">{n.message}</p>
                         </div>
                       ))
                     )}
@@ -687,6 +816,10 @@ const DashboardLayout = () => {
                   />
                 </div>
               </div>
+
+              {bizFormError && (
+                <p className="text-red-500 text-xs font-bold text-center bg-red-50 border border-red-200 rounded-xl py-2 px-3">{bizFormError}</p>
+              )}
 
               <div className="pt-2 flex justify-end gap-3 border-t border-slate-100">
                 <button

@@ -25,8 +25,8 @@ const DeliveryVerification = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (!otp) return alert('Please enter delivery verification OTP');
-    if (!photo) return alert('Please capture delivery proof photo');
+    if (!otp) return;
+    if (!photo) return;
 
     const formData = new FormData();
     formData.append('otp', otp);

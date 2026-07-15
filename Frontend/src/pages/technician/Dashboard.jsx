@@ -114,6 +114,14 @@ const Dashboard = () => {
     };
   }, [isTimerRunning]);
 
+  useEffect(() => {
+    if (workflowStep === 6) {
+      setIsTimerRunning(true);
+    } else {
+      setIsTimerRunning(false);
+    }
+  }, [workflowStep]);
+
   const formatTimer = (totalSeconds) => {
     const mins = Math.floor(totalSeconds / 60);
     const secs = totalSeconds % 60;
@@ -528,17 +536,17 @@ const Dashboard = () => {
       )}
 
       {/* ========================================================= */}
-      {/* 2. WASHING MACHINE DASHBOARD VIEW                         */}
+      {/* 2. WASHING MACHINE & TV DASHBOARD VIEWS                     */}
       {/* ========================================================= */}
-      {selectedBusiness === 'Washing Machine' && (
+      {(selectedBusiness === 'Washing Machine' || selectedBusiness === 'TV') && (
         <>
-          {/* Washing Machine specific KPI Cards */}
+          {/* Business specific KPI Cards */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             
             <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
               <div className="space-y-1">
-                <span className="text-xs text-slate-700 font-black uppercase tracking-wider block">Washing Machine Revenue</span>
-                <p className="text-2xl font-black text-slate-855">₹{getVal('Washing Machine', 'revenue').toFixed(2)}</p>
+                <span className="text-xs text-slate-700 font-black uppercase tracking-wider block">{selectedBusiness} Revenue</span>
+                <p className="text-2xl font-black text-slate-855">₹{getVal(selectedBusiness, 'revenue', selectedBusiness === 'TV' ? 1400 : 850).toFixed(2)}</p>
                 <span className="text-xs text-green-600 font-bold flex items-center gap-0.5">
                   ▲ Live <span className="text-slate-450 font-normal">this month</span>
                 </span>
@@ -551,7 +559,7 @@ const Dashboard = () => {
             <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
               <div className="space-y-1">
                 <span className="text-xs text-slate-700 font-black uppercase tracking-wider block">Pending Repairs</span>
-                <p className="text-2xl font-black text-slate-855">{getVal('Washing Machine', 'pendingRepairs')}</p>
+                <p className="text-2xl font-black text-slate-855">{getVal(selectedBusiness, 'pendingRepairs', 1)}</p>
                 <span className="text-xs text-red-500 font-bold">Requires attention</span>
               </div>
               <div className="w-9 h-9 rounded-xl bg-purple-50 text-purple-500 flex items-center justify-center border border-purple-100">
@@ -562,7 +570,7 @@ const Dashboard = () => {
             <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
               <div className="space-y-1">
                 <span className="text-xs text-slate-700 font-black uppercase tracking-wider block">Completed Repairs</span>
-                <p className="text-2xl font-black text-slate-805">{getVal('Washing Machine', 'completedRepairs')}</p>
+                <p className="text-2xl font-black text-slate-805">{getVal(selectedBusiness, 'completedRepairs', selectedBusiness === 'TV' ? 14 : 18)}</p>
                 <span className="text-xs text-green-600 font-bold">Successfully resolved</span>
               </div>
               <div className="w-9 h-9 rounded-xl bg-green-50 text-green-500 flex items-center justify-center border border-green-100">
@@ -573,7 +581,7 @@ const Dashboard = () => {
             <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
               <div className="space-y-1">
                 <span className="text-xs text-slate-700 font-black uppercase tracking-wider block">Assigned Techs</span>
-                <p className="text-2xl font-black text-slate-805">{getVal('Washing Machine', 'assignedTechs')}</p>
+                <p className="text-2xl font-black text-slate-805">{getVal(selectedBusiness, 'assignedTechs', 2)}</p>
                 <span className="text-xs text-amber-600 font-bold">Active technicians</span>
               </div>
               <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center border border-amber-100">
@@ -635,14 +643,22 @@ const Dashboard = () => {
                 <div className="flex justify-between items-start">
                   <div>
                     <span className="text-xs bg-amber-50 text-amber-700 border border-amber-100 px-2 py-0.5 rounded font-black uppercase">
-                      JOB ID: #SRV-882741
+                      JOB ID: {selectedBusiness === 'Washing Machine' ? '#SRV-882741' : '#SRV-339281'}
                     </span>
-                    <h4 className="font-extrabold text-slate-800 text-lg pt-1">IFB Senator Aqua SX 7kg</h4>
-                    <p className="text-xs text-slate-500 font-medium">Issue: Water not draining. Drain filter cleaned but issue persists.</p>
+                    <h4 className="font-extrabold text-slate-800 text-lg pt-1">
+                      {selectedBusiness === 'Washing Machine' ? 'IFB Senator Aqua SX 7kg' : 'Sony Bravia 55" OLED TV'}
+                    </h4>
+                    <p className="text-xs text-slate-500 font-medium">
+                      Issue: {selectedBusiness === 'Washing Machine' 
+                        ? 'Water not draining. Drain filter cleaned but issue persists.' 
+                        : 'Vertical colored lines appearing on the center of display.'}
+                    </p>
                   </div>
                   <div className="text-right">
                     <span className="text-xs text-slate-400 font-bold block">BASE CHARGE</span>
-                    <span className="text-base font-black text-slate-800">₹350</span>
+                    <span className="text-base font-black text-slate-800">
+                      ₹{selectedBusiness === 'Washing Machine' ? '350' : '2,500'}
+                    </span>
                   </div>
                 </div>
 
@@ -682,10 +698,104 @@ const Dashboard = () => {
                     </div>
                   )}
 
-                  {workflowStep >= 4 && (
-                    <div className="text-center py-4 space-y-2">
-                      <p className="text-xs font-bold text-slate-600">Active repair session in progress. Verify steps to checkout.</p>
-                      <button onClick={() => setWorkflowStep(2)} className="text-xs text-amber-600 font-bold underline">Reset Stepper Simulator</button>
+                  {workflowStep === 4 && (
+                    <div className="space-y-3.5">
+                      <div className="bg-amber-50 border border-amber-100 text-amber-700 p-3.5 rounded-xl text-xs leading-relaxed font-bold text-center">
+                        ✓ Arrived! You are currently at the customer's location. Please meet the client and check the device.
+                      </div>
+                      <button
+                        onClick={() => setWorkflowStep(5)}
+                        className="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold py-3 rounded-xl text-xs flex items-center justify-center gap-1.5"
+                      >
+                        <Camera className="w-4 h-4" /> Proceed to Pre-Service Photo
+                      </button>
+                    </div>
+                  )}
+
+                  {workflowStep === 5 && (
+                    <div className="space-y-3">
+                      <p className="text-xs text-slate-500 font-bold block">Document Pre-Service Inspection Condition:</p>
+                      <div className="flex gap-4 items-center">
+                        <div className="w-24 h-20 bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl flex flex-col items-center justify-center text-slate-400">
+                          <Camera className="w-5 h-5" />
+                          <span className="text-[9px] mt-1 font-bold">PRE-PHOTO</span>
+                        </div>
+                        <button
+                          onClick={() => setWorkflowStep(6)}
+                          className="flex-1 py-3.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold text-xs rounded-xl"
+                        >
+                          Upload Photo & Start Repair
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {workflowStep === 6 && (
+                    <div className="space-y-3.5 text-center py-2">
+                      <div className="flex justify-center items-center gap-2">
+                        <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping"></span>
+                        <span className="text-sm font-black text-slate-800">Repair Timer: {formatTimer(timerSeconds)}</span>
+                      </div>
+                      <p className="text-xs text-slate-500 font-semibold leading-relaxed">Troubleshooting device. Perform necessary hardware repair/servicing steps.</p>
+                      <button
+                        onClick={() => setWorkflowStep(7)}
+                        className="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold py-3 rounded-xl text-xs"
+                      >
+                        Complete Repair & Take Post-Photo
+                      </button>
+                    </div>
+                  )}
+
+                  {workflowStep === 7 && (
+                    <div className="space-y-3">
+                      <p className="text-xs text-slate-500 font-bold block">Document Completed Work Condition:</p>
+                      <div className="flex gap-4 items-center">
+                        <div className="w-24 h-20 bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl flex flex-col items-center justify-center text-slate-400">
+                          <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                          <span className="text-[9px] mt-1 font-bold">POST-PHOTO</span>
+                        </div>
+                        <button
+                          onClick={() => setWorkflowStep(8)}
+                          className="flex-1 py-3.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold text-xs rounded-xl"
+                        >
+                          Upload Photo & Go to Payment
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {workflowStep === 8 && (
+                    <div className="space-y-3">
+                      <p className="text-xs text-slate-600 font-bold block">Select Payment Collection Mode:</p>
+                      <div className="grid grid-cols-3 gap-2">
+                        <button className="py-2.5 border-2 border-slate-105 hover:border-amber-400 bg-white rounded-xl text-xs font-bold text-slate-700">Cash</button>
+                        <button className="py-2.5 border-2 border-amber-500 bg-amber-50 rounded-xl text-xs font-extrabold text-amber-800">UPI / QR</button>
+                        <button className="py-2.5 border-2 border-slate-105 hover:border-amber-400 bg-white rounded-xl text-xs font-bold text-slate-700">Card POS</button>
+                      </div>
+                      <button
+                        onClick={() => setWorkflowStep(9)}
+                        className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-3 rounded-xl text-xs mt-2"
+                      >
+                        Confirm Payment Collection
+                      </button>
+                    </div>
+                  )}
+
+                  {workflowStep === 9 && (
+                    <div className="space-y-4 text-center py-2">
+                      <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto border border-emerald-100">
+                        <Check className="w-6 h-6 stroke-[3px]" />
+                      </div>
+                      <div>
+                        <h4 className="font-extrabold text-slate-800 text-sm">Service Order Completed!</h4>
+                        <p className="text-[11px] text-slate-500 font-semibold mt-1">Invoice emailed to customer. Payout of ₹{selectedBusiness === 'Washing Machine' ? '350' : '2,500'} credited.</p>
+                      </div>
+                      <button
+                        onClick={() => { setWorkflowStep(2); setTimerSeconds(0); }}
+                        className="w-full bg-slate-800 hover:bg-slate-900 text-white font-extrabold py-2.5 rounded-xl text-xs"
+                      >
+                        Return to Dispatch Console
+                      </button>
                     </div>
                   )}
                 </div>
@@ -700,17 +810,24 @@ const Dashboard = () => {
                 <div className="grid grid-cols-2 gap-3.5 text-xs leading-tight">
                   <div>
                     <span className="text-[10px] text-slate-400 font-bold block uppercase">Customer name</span>
-                    <span className="font-bold text-slate-805">Shalini Nair</span>
+                    <span className="font-bold text-slate-805">
+                      {selectedBusiness === 'Washing Machine' ? 'Shalini Nair' : 'Anjali Gupta'}
+                    </span>
                   </div>
                   <div>
                     <span className="text-[10px] text-slate-400 font-bold block uppercase">Mobile number</span>
                     <span className="font-bold text-amber-600 flex items-center gap-0.5">
-                      <Phone className="w-2.5 h-2.5" /> +91 81290 88374
+                      <Phone className="w-2.5 h-2.5" /> 
+                      {selectedBusiness === 'Washing Machine' ? '+91 81290 88374' : '+91 98450 12345'}
                     </span>
                   </div>
                   <div className="col-span-2">
                     <span className="text-[10px] text-slate-400 font-bold block uppercase">Full Address</span>
-                    <span className="font-medium text-slate-700">No. 12, 4th Cross, Koramangala 3rd Block, Bengaluru 560034</span>
+                    <span className="font-medium text-slate-700">
+                      {selectedBusiness === 'Washing Machine' 
+                        ? 'No. 12, 4th Cross, Koramangala 3rd Block, Bengaluru 560034' 
+                        : 'Flat 402, Sunshine Heights, BTM Layout 2nd Stage, Bengaluru 560076'}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -738,12 +855,12 @@ const Dashboard = () => {
                   <span className="text-[9px] text-slate-400 font-bold block uppercase">Est. Arrival</span>
                   <span className="font-black text-slate-805">12 min</span>
                 </div>
-              </div>
             </div>
 
           </div>
-        </>
-      )}
+        </div>
+      </>
+    )}
 
       {/* ========================================================= */}
       {/* 3. AC REPAIR DASHBOARD VIEW                               */}
@@ -849,7 +966,7 @@ const Dashboard = () => {
       {/* ========================================================= */}
       {/* 4. OTHER DYNAMIC BUSINESS VIEWS (Fallback dashboard)       */}
       {/* ========================================================= */}
-      {selectedBusiness !== 'OVERALL' && selectedBusiness !== 'Washing Machine' && selectedBusiness !== 'AC Repair' && (
+      {selectedBusiness !== 'OVERALL' && selectedBusiness !== 'Washing Machine' && selectedBusiness !== 'TV' && selectedBusiness !== 'AC Repair' && (
         <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm space-y-6 text-center">
           <BookOpen className="w-16 h-16 text-amber-500 mx-auto" />
           <div>

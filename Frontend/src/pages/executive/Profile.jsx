@@ -1,8 +1,12 @@
 import React from 'react';
-import ProfileWrapper from '../deliveryPartner/Profile';
+import { useSelector } from 'react-redux';
+import StayProfile from './stay/Profile';
+import TravelProfile from './travel/Profile';
 
 const Profile = () => {
-  return <ProfileWrapper />;
+  const { profile } = useSelector((state) => state.auth);
+  const isStay = profile?.executiveType === 'stay';
+  return isStay ? <StayProfile /> : <TravelProfile />;
 };
 
 export default Profile;

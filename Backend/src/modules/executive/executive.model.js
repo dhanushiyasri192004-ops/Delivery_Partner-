@@ -20,6 +20,11 @@ const ExecutiveSchema = new mongoose.Schema({
     enum: ['online', 'offline', 'busy'],
     default: 'offline'
   },
+  executiveType: {
+    type: String,
+    enum: ['stay', 'travel'],
+    default: 'travel'
+  },
   currentLocation: {
     type: {
       type: String,

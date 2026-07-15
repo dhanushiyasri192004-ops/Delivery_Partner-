@@ -6,6 +6,7 @@ import technicianReducer from './slices/technicianSlice';
 import executiveReducer from './slices/executiveSlice';
 import walletReducer from './slices/walletSlice';
 import notificationReducer from './slices/notificationSlice';
+import stayReducer from './slices/staySlice';
 
 export const store = configureStore({
   reducer: {
@@ -14,6 +15,7 @@ export const store = configureStore({
     technician: technicianReducer,
     executive: executiveReducer,
     wallet: walletReducer,
-    notification: notificationReducer
+    notification: notificationReducer,
+    stay: stayReducer,
   }
 });

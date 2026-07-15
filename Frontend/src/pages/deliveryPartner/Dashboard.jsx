@@ -54,8 +54,8 @@ const Dashboard = () => {
   }, [activeOrder?._id]);
  
   const handleVerifyPickup = () => {
-    if (!pickupOtp) return alert('Please enter OTP');
-    if (!pickupPhoto) return alert('Please capture package photo');
+    if (!pickupOtp) return;
+    if (!pickupPhoto) return;
  
     const formData = new FormData();
     formData.append('otp', pickupOtp);
@@ -84,8 +84,8 @@ const Dashboard = () => {
   };
  
   const handleVerifyDelivery = () => {
-    if (!deliveryOtp) return alert('Please enter OTP');
-    if (!deliveryPhoto) return alert('Please capture delivery proof photo');
+    if (!deliveryOtp) return;
+    if (!deliveryPhoto) return;
  
     const formData = new FormData();
     formData.append('otp', deliveryOtp);
@@ -128,7 +128,8 @@ const Dashboard = () => {
     const script = document.createElement('script');
     script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
     script.onload = () => {
-      if (window.L && !mapRef.current) {
+      const containerExists = document.getElementById('leaflet-map-container');
+      if (window.L && !mapRef.current && containerExists) {
         // Setup coordinates matching mock database order
         const pickup = [12.9716, 77.5946]; // Fresh Bites Restaurant (Indiranagar)
         const drop = [12.9616, 77.6046];   // Arun Kumar Dropoff (Koramangala)
@@ -257,7 +258,7 @@ const Dashboard = () => {
         <Link to="/delivery/earnings" className="bg-gradient-to-br from-amber-50/50 via-white to-white p-6 rounded-2xl border border-amber-150 hover:border-amber-300 shadow-sm hover:shadow-lg transition-all duration-300 flex items-center justify-between cursor-pointer text-slate-800 hover:text-slate-900 transform hover:-translate-y-1">
           <div className="space-y-1">
             <span className="text-sm text-amber-700 font-bold block uppercase tracking-wider">Today's Earnings</span>
-            <p className="text-3xl font-black text-slate-950">₹{metrics.todayEarnings || '1,680'}</p>
+            <p className="text-3xl font-black text-slate-955">₹{metrics?.todayEarnings || '1,680'}</p>
             <span className="text-sm text-green-700 font-bold flex items-center gap-1">
               ▲ 18% <span className="text-slate-500 font-normal">vs yesterday</span>
             </span>
@@ -271,7 +272,7 @@ const Dashboard = () => {
         <Link to="/delivery/orders" className="bg-gradient-to-br from-blue-50/50 via-white to-white p-6 rounded-2xl border border-blue-150 hover:border-blue-300 shadow-sm hover:shadow-lg transition-all duration-300 flex items-center justify-between cursor-pointer text-slate-800 hover:text-slate-900 transform hover:-translate-y-1">
           <div className="space-y-1">
             <span className="text-sm text-blue-700 font-bold block uppercase tracking-wider">Today's Orders</span>
-            <p className="text-3xl font-black text-slate-950">{metrics.todayOrdersCount || '8'}</p>
+            <p className="text-3xl font-black text-slate-955">{metrics?.todayOrdersCount || '8'}</p>
             <span className="text-sm text-green-700 font-bold flex items-center gap-1">
               ▲ 14% <span className="text-slate-500 font-normal">vs yesterday</span>
             </span>
@@ -285,7 +286,7 @@ const Dashboard = () => {
         <Link to="/delivery/orders" className="bg-gradient-to-br from-emerald-50/50 via-white to-white p-6 rounded-2xl border border-emerald-150 hover:border-emerald-300 shadow-sm hover:shadow-lg transition-all duration-300 flex items-center justify-between cursor-pointer text-slate-800 hover:text-slate-900 transform hover:-translate-y-1">
           <div className="space-y-1">
             <span className="text-sm text-emerald-700 font-bold block uppercase tracking-wider">Completed Orders</span>
-            <p className="text-3xl font-black text-slate-950">{metrics.completedCount || '6'}</p>
+            <p className="text-3xl font-black text-slate-955">{metrics?.completedCount || '6'}</p>
             <span className="text-sm text-green-700 font-bold flex items-center gap-1">
               ▲ 20% <span className="text-slate-500 font-normal">vs yesterday</span>
             </span>
@@ -298,7 +299,7 @@ const Dashboard = () => {
         <Link to="/delivery/performance" className="bg-gradient-to-br from-rose-50/50 via-white to-white p-6 rounded-2xl border border-rose-150 hover:border-rose-300 shadow-sm hover:shadow-lg transition-all duration-300 flex items-center justify-between cursor-pointer text-slate-800 hover:text-slate-900 transform hover:-translate-y-1">
           <div className="space-y-1">
             <span className="text-sm text-rose-700 font-bold block uppercase tracking-wider">Cancellation</span>
-            <p className="text-3xl font-black text-slate-955">{metrics.cancellationCount || '1'}</p>
+            <p className="text-3xl font-black text-slate-955">{metrics?.cancellationCount || '1'}</p>
             <span className="text-sm text-red-750 font-bold flex items-center gap-1">
               ▼ 50% <span className="text-slate-500 font-normal">vs yesterday</span>
             </span>
@@ -360,7 +361,7 @@ const Dashboard = () => {
             <span className="text-xs text-brand font-extrabold bg-amber-50 px-2 py-0.5 rounded border border-amber-100">Live</span>
           </div>
           <div className="space-y-2">
-            <p className="text-3xl font-black text-slate-800">₹{metrics.todayEarnings || '1,680'}</p>
+            <p className="text-3xl font-black text-slate-800">₹{metrics?.todayEarnings || '1,680'}</p>
             {/* Mock chart SVG line graph */}
             <div className="h-16 w-full pt-2 relative overflow-visible">
               <style>{`
