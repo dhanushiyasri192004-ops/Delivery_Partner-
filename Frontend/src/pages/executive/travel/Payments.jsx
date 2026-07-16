@@ -8,6 +8,28 @@ const Payments = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editForm, setEditForm] = useState({ amount: '', mode: '', status: '' });
 
+  const renderPaymentOrMembership = (amount, passengerName) => {
+    const membershipMap = {
+      'Suresh Babu': 'MC Gold',
+      'Vijay Kumar': 'MC Silver',
+      'Meena Priya': 'MC Diamond',
+      'Gokul S': 'MC Gold'
+    };
+    const memberCard = membershipMap[passengerName];
+    if (memberCard) {
+      let badgeColor = 'bg-slate-100 text-slate-705 border-slate-200';
+      if (memberCard === 'MC Gold') badgeColor = 'bg-amber-50 text-amber-700 border-amber-200';
+      if (memberCard === 'MC Diamond') badgeColor = 'bg-cyan-50 text-cyan-700 border-cyan-200';
+      if (memberCard === 'MC Silver') badgeColor = 'bg-slate-105 text-slate-600 border-slate-200';
+      return (
+        <span className={`px-2.5 py-1 rounded-full text-[9px] font-extrabold uppercase tracking-wide border ${badgeColor}`}>
+          {memberCard}
+        </span>
+      );
+    }
+    return <span className="text-slate-805 font-extrabold">{amount}</span>;
+  };
+
   const initialPayments = [
     { id: 'PAY10001', pnr: 'PNR12345', passenger: 'Ramesh Kumar', amount: '₹2,450', mode: 'Card', date: '13 Jul 2026', status: 'Success' },
     { id: 'PAY10002', pnr: 'PNR12346', passenger: 'Suresh Babu', amount: '₹1,300', mode: 'UPI', date: '13 Jul 2026', status: 'Success' },
@@ -103,8 +125,10 @@ const Payments = () => {
                   <td className="py-3.5 pl-3 font-bold text-slate-800">{p.id}</td>
                   <td className="py-3.5 font-bold text-blue-600">{p.pnr}</td>
                   <td className="py-3.5 font-bold text-slate-850">{p.passenger}</td>
-                  <td className="py-3.5 font-extrabold text-slate-800">{p.amount}</td>
-                  <td className="py-3.5 text-slate-500 font-medium">{p.mode}</td>
+                  <td className="py-3.5">{renderPaymentOrMembership(p.amount, p.passenger)}</td>
+                  <td className="py-3.5 text-slate-500 font-medium">
+                    {['Suresh Babu', 'Vijay Kumar', 'Meena Priya', 'Gokul S'].includes(p.passenger) ? '—' : p.mode}
+                  </td>
                   <td className="py-3.5 text-slate-450">{p.date}</td>
                   <td className="py-3.5">
                     <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase ${
@@ -176,11 +200,11 @@ const Payments = () => {
               </div>
               <div>
                 <span className="text-slate-400 block uppercase text-[10px]">Amount</span>
-                <span className="text-slate-850 font-black text-sm">{selectedPayment.amount}</span>
+                <span className="text-slate-850 font-black text-sm block mt-1">{renderPaymentOrMembership(selectedPayment.amount, selectedPayment.passenger)}</span>
               </div>
               <div>
                 <span className="text-slate-400 block uppercase text-[10px]">Payment Mode</span>
-                <span className="text-slate-700 font-bold">{selectedPayment.mode}</span>
+                <span className="text-slate-700 font-bold block mt-1">{['Suresh Babu', 'Vijay Kumar', 'Meena Priya', 'Gokul S'].includes(selectedPayment.passenger) ? 'Membership Card' : selectedPayment.mode}</span>
               </div>
               <div>
                 <span className="text-slate-400 block uppercase text-[10px]">Transaction Date</span>

@@ -2,14 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { registerUser, clearError } from '../../redux/slices/authSlice';
-import { 
-  User, 
-  Briefcase, 
-  CreditCard, 
-  CheckSquare, 
-  ArrowLeft, 
+import {
+  User,
+  Briefcase,
+  CreditCard,
+  CheckSquare,
+  ArrowLeft,
   ArrowRight,
-  Upload
+  Upload,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 
 const Register = () => {
@@ -19,22 +21,44 @@ const Register = () => {
 
   const [step, setStep] = useState(1);
   const [localError, setLocalError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [categorySearch, setCategorySearch] = useState('');
+  const [showAddCustomInput, setShowAddCustomInput] = useState(false);
+  const [customCatName, setCustomCatName] = useState('');
+  const [availableCategories, setAvailableCategories] = useState([
+    'AC Technician',
+    'Washing Machine Technician',
+    'TV / Electronics Technician',
+    'Refrigerator Technician',
+    'Plumber',
+    'Electrician',
+    'Carpenter',
+    'Mobile Technician',
+    'Laptop Technician',
+    'Air Conditioner Specialist',
+    'Plumbing Repair & Install',
+    'Home Electrical Wiring',
+    'Washing Machine / TV Appliance Repair',
+    'PC & Laptop Repair Technician'
+  ]);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
     mobileNumber: '',
     role: 'delivery_partner',
-    
+
     // Delivery Profile
     aadhaarNumber: '',
     panNumber: '',
     vehicleName: '',
     vehicleNumber: '',
     licenseNumber: '',
-    
+
     // Technician
-    technicianType: 'AC Technician',
+    technicianType: 'AC',
+    technicianCategories: ['AC'],
 
     // Bank
     bankName: '',
@@ -80,18 +104,18 @@ const Register = () => {
     if (currentStep === 1) {
       if (!formData.name.trim()) return 'Full name is required';
       if (!formData.email.trim() || !/\S+@\S+\.\S+/.test(formData.email)) return 'Enter a valid email address';
-      
+
       // Password validation: capital letter, number, special character, min length 8
       const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]).{8,}$/;
       if (!passwordRegex.test(formData.password)) {
         return 'Password must be at least 8 characters long and contain at least one uppercase letter, one number, and one special character';
       }
-      
+
       // Mobile number: exactly 10 digits
       if (!/^\d{10}$/.test(formData.mobileNumber)) {
         return 'Mobile number must be exactly 10 digits';
       }
-      
+
       // Aadhaar number: exactly 12 digits
       if (!/^\d{12}$/.test(formData.aadhaarNumber)) {
         return 'Aadhaar number must be exactly 12 digits';
@@ -148,7 +172,7 @@ const Register = () => {
       return;
     }
     setLocalError('');
-    
+
     const apiData = new FormData();
     Object.keys(formData).forEach((key) => {
       apiData.append(key, formData[key]);
@@ -173,9 +197,8 @@ const Register = () => {
           const Icon = s.icon;
           return (
             <div key={s.num} className="flex flex-col items-center flex-1">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
-                step >= s.num ? 'bg-brand text-slate-900 font-extrabold' : 'bg-slate-700 text-slate-400'
-              }`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${step >= s.num ? 'bg-brand text-slate-900 font-extrabold' : 'bg-slate-700 text-slate-400'
+                }`}>
                 <Icon className="h-4 w-4" />
               </div>
               <span className={`text-[10px] mt-1 font-semibold ${step >= s.num ? 'text-brand' : 'text-slate-500'}`}>
@@ -196,7 +219,7 @@ const Register = () => {
       {step === 1 && (
         <div className="space-y-4">
           <h4 className="text-lg font-bold text-white mb-2">1. Personal Profile Setup</h4>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-slate-400 mb-1">Full Name</label>
@@ -225,15 +248,47 @@ const Register = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-slate-400 mb-1">Password</label>
-              <input
-                type="password"
-                name="password"
-                required
-                value={formData.password}
-                onChange={handleChange}
-                className="w-full bg-slate-900 border border-slate-700/60 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-brand/40"
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  required
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="w-full bg-slate-900 border border-slate-700/60 rounded-xl pl-4 pr-10 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-brand/40"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition-colors"
+                >
+                  {showPassword ? <EyeOff className="h-4.5 w-4.5" /> : <Eye className="h-4.5 w-4.5" />}
+                </button>
+              </div>
             </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-400 mb-1">Confirm Password</label>
+              <div className="relative">
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  name="confirmPassword"
+                  required
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  className="w-full bg-slate-900 border border-slate-700/60 rounded-xl pl-4 pr-10 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-brand/40"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition-colors"
+                >
+                  {showConfirmPassword ? <EyeOff className="h-4.5 w-4.5" /> : <Eye className="h-4.5 w-4.5" />}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-slate-400 mb-1">Mobile Number</label>
               <input
@@ -246,9 +301,6 @@ const Register = () => {
                 className="w-full bg-slate-900 border border-slate-700/60 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-brand/40"
               />
             </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-slate-400 mb-1">Aadhaar Number</label>
               <input
@@ -261,6 +313,9 @@ const Register = () => {
                 className="w-full bg-slate-900 border border-slate-700/60 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-brand/40"
               />
             </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-slate-400 mb-1">PAN Number</label>
               <input
@@ -360,24 +415,98 @@ const Register = () => {
           )}
 
           {formData.role === 'technician' && (
-            <div>
-              <label className="block text-xs font-semibold text-slate-400 mb-1">Technician Specialty Category</label>
-              <select
-                name="technicianType"
-                value={formData.technicianType}
-                onChange={handleChange}
+            <div className="space-y-3">
+              <label className="block text-xs font-semibold text-slate-400 mb-1">Technician Specialty Categories (Select all that apply)</label>
+              
+              {/* Search Box */}
+              <input
+                type="text"
+                placeholder="Search category..."
+                value={categorySearch}
+                onChange={(e) => setCategorySearch(e.target.value)}
                 className="w-full bg-slate-900 border border-slate-700/60 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-brand/40"
-              >
-                <option value="AC Technician">AC Technician</option>
-                <option value="Electronics Technician">Electronics Technician</option>
-                <option value="Electrician">Electrician</option>
-                <option value="Plumber">Plumber</option>
-                <option value="Carpenter">Carpenter</option>
-                <option value="Refrigerator Technician">Refrigerator Technician</option>
-                <option value="Washing Machine Technician">Washing Machine Technician</option>
-                <option value="Mobile Technician">Mobile Technician</option>
-                <option value="Laptop Technician">Laptop Technician</option>
-              </select>
+              />
+
+              {/* Grid Checkbox list */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-48 overflow-y-auto pt-1 pr-1">
+                {availableCategories.filter(cat => 
+                  cat.toLowerCase().includes(categorySearch.toLowerCase())
+                ).map((cat) => {
+                  const isChecked = (formData.technicianCategories || []).includes(cat);
+                  return (
+                    <label key={cat} className="flex items-center gap-2.5 text-white text-xs bg-slate-800 p-2.5 rounded-xl border border-slate-700/60 cursor-pointer hover:bg-slate-700/50 transition-all select-none">
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={(e) => {
+                          const updated = e.target.checked
+                            ? [...(formData.technicianCategories || []), cat]
+                            : (formData.technicianCategories || []).filter(c => c !== cat);
+                          setFormData({
+                            ...formData,
+                            technicianCategories: updated,
+                            technicianType: updated.join(', ')
+                          });
+                        }}
+                        className="rounded border-slate-700 text-brand focus:ring-brand/40 bg-slate-900 w-4 h-4 cursor-pointer"
+                      />
+                      {cat}
+                    </label>
+                  );
+                })}
+              </div>
+
+              {/* Add Custom / Other Category field */}
+              <div className="pt-1">
+                {showAddCustomInput ? (
+                  <div className="flex gap-2 items-center">
+                    <input
+                      type="text"
+                      placeholder="Enter custom category name..."
+                      value={customCatName}
+                      onChange={(e) => setCustomCatName(e.target.value)}
+                      className="flex-1 bg-slate-900 border border-slate-700/60 rounded-xl px-3 py-1.5 text-white text-xs focus:outline-none focus:ring-2 focus:ring-brand/40"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const trimmed = customCatName.trim();
+                        if (trimmed) {
+                          if (!availableCategories.includes(trimmed)) {
+                            setAvailableCategories([...availableCategories, trimmed]);
+                          }
+                          const updated = [...(formData.technicianCategories || []), trimmed];
+                          setFormData({
+                            ...formData,
+                            technicianCategories: updated,
+                            technicianType: updated.join(', ')
+                          });
+                          setCustomCatName('');
+                          setShowAddCustomInput(false);
+                        }
+                      }}
+                      className="bg-brand text-slate-950 font-bold px-3 py-1.5 rounded-xl text-xs hover:bg-brand-dark transition-all"
+                    >
+                      Add
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowAddCustomInput(false)}
+                      className="text-xs text-slate-400 hover:text-slate-200"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setShowAddCustomInput(true)}
+                    className="text-xs text-amber-500 hover:text-amber-400 font-bold flex items-center gap-1 pl-1 cursor-pointer"
+                  >
+                    + Add Custom / Other Category...
+                  </button>
+                )}
+              </div>
             </div>
           )}
 
@@ -480,16 +609,30 @@ const Register = () => {
             </div>
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-400 mb-1">Branch Name</label>
-            <input
-              type="text"
-              name="branch"
-              required
-              value={formData.branch}
-              onChange={handleChange}
-              className="w-full bg-slate-900 border border-slate-700/60 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-brand/40"
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold text-slate-400 mb-1">Confirm Account Number</label>
+              <input
+                type="text"
+                name="confirmAccountNumber"
+                required
+                value={formData.confirmAccountNumber}
+                onChange={handleChange}
+                maxLength={18}
+                className="w-full bg-slate-900 border border-slate-700/60 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-brand/40"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-400 mb-1">Branch Name</label>
+              <input
+                type="text"
+                name="branch"
+                required
+                value={formData.branch}
+                onChange={handleChange}
+                className="w-full bg-slate-900 border border-slate-700/60 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-brand/40"
+              />
+            </div>
           </div>
 
           <div className="pt-4 flex justify-between">

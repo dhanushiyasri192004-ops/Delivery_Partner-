@@ -13,6 +13,28 @@ const AssignedBookings = () => {
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [activeDeck, setActiveDeck] = useState('Lower');
 
+  const renderPaymentOrMembership = (amount, passengerName) => {
+    const membershipMap = {
+      'Suresh Babu': 'MC Gold',
+      'Vijay Kumar': 'MC Silver',
+      'Meena Priya': 'MC Diamond',
+      'Gokul S': 'MC Gold'
+    };
+    const memberCard = membershipMap[passengerName];
+    if (memberCard) {
+      let badgeColor = 'bg-slate-100 text-slate-705 border-slate-200';
+      if (memberCard === 'MC Gold') badgeColor = 'bg-amber-50 text-amber-700 border-amber-200';
+      if (memberCard === 'MC Diamond') badgeColor = 'bg-cyan-50 text-cyan-700 border-cyan-200';
+      if (memberCard === 'MC Silver') badgeColor = 'bg-slate-105 text-slate-600 border-slate-200';
+      return (
+        <span className={`px-2.5 py-1 rounded-full text-[9px] font-extrabold uppercase tracking-wide border ${badgeColor}`}>
+          {memberCard}
+        </span>
+      );
+    }
+    return <span className="text-slate-800 font-extrabold">{amount}</span>;
+  };
+
   const initialBookings = [
     { pnr: 'PNR12345', passenger: 'Ramesh Kumar', route: 'Chennai → Coimbatore', date: '13 Jul 2025', seats: '2', amount: '₹2,458', status: 'Confirmed' },
     { pnr: 'PNR12346', passenger: 'Suresh Babu', route: 'Bangalore → Mysore', date: '13 Jul 2025', seats: '1', amount: '₹850', status: 'Pending' },
@@ -369,7 +391,7 @@ const AssignedBookings = () => {
                   <td className="py-3.5 text-slate-550">{b.route}</td>
                   <td className="py-3.5 text-slate-450">{b.date}</td>
                   <td className="py-3.5 text-slate-500">{b.seats}</td>
-                  <td className="py-3.5 font-extrabold text-slate-800">{b.amount}</td>
+                  <td className="py-3.5">{renderPaymentOrMembership(b.amount, b.passenger)}</td>
                   <td className="py-3.5">
                     <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase ${
                       b.status === 'Confirmed' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' :
@@ -474,9 +496,9 @@ const AssignedBookings = () => {
                   <span>Selected Seats:</span>
                   <span className="text-blue-600 font-black">{selectedSeats.length > 0 ? selectedSeats.join(', ') : 'None'}</span>
                 </div>
-                <div className="flex justify-between border-t border-slate-200/60 pt-1.5 mt-1 text-slate-800">
-                  <span>Amount Payout:</span>
-                  <span className="font-extrabold">{selectedPendingBooking.amount}</span>
+                 <div className="flex justify-between border-t border-slate-200/60 pt-1.5 mt-1 text-slate-800">
+                  <span>Amount Payout / Card:</span>
+                  {renderPaymentOrMembership(selectedPendingBooking.amount, selectedPendingBooking.passenger)}
                 </div>
               </div>
 

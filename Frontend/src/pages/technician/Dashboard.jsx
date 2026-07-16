@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useOutletContext, Link } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import { 
   TrendingUp, 
   Layers, 
@@ -37,6 +38,8 @@ const Dashboard = () => {
     setActiveMenu: () => {}
   };
 
+  const reduxNotifications = useSelector((state) => state.notification?.notifications || []);
+
   // --- GENERAL SIMULATED BUSINESS DATA ---
   const businessData = {
     'OVERALL': {
@@ -60,7 +63,7 @@ const Dashboard = () => {
       rating: 4.9,
       monthlyChart: [1500, 2200, 2900, 3100, 3900, 4800]
     },
-    'AC Repair': {
+    'AC': {
       revenue: 1200,
       gasFilling: 5,
       installation: 3,
@@ -191,44 +194,83 @@ const Dashboard = () => {
     { name: 'Vikram Seth', rating: 4, comment: 'Good cooling repair. Refrigerator is functioning well.', category: 'Refrigerator' }
   ];
 
+  // Helper to aggregate overall values
+  const getOverallVal = (key) => {
+    let sum = 0;
+    businesses.forEach(biz => {
+      const dataKey = biz === 'AC' ? 'AC' : biz;
+      const data = businessData[dataKey] || {};
+      if (key === 'revenue') {
+        sum += data.revenue || data.revenueToday || 0;
+      } else if (key === 'completed') {
+        sum += data.completed || data.completedRepairs || 0;
+      } else if (key === 'pending') {
+        sum += data.pending || data.pendingRepairs || 0;
+      } else if (key === 'customers') {
+        sum += data.customers || 0;
+      }
+    });
+    return sum;
+  };
+
+  const getOverallRating = () => {
+    let sum = 0;
+    let count = 0;
+    businesses.forEach(biz => {
+      const dataKey = biz === 'AC' ? 'AC' : biz;
+      const data = businessData[dataKey] || {};
+      if (data.rating) {
+        sum += data.rating;
+        count++;
+      }
+    });
+    return count > 0 ? (sum / count).toFixed(1) : '4.8';
+  };
+
+  // Shared normalizer so category names can be fuzzy-matched
+  const normalize = (name) => {
+    if (!name) return '';
+    const lower = name.toLowerCase().trim();
+    if (lower.includes('ac') || lower.includes('air condition')) return 'ac';
+    if (lower.includes('washing') || lower.includes('appliance')) return 'washing';
+    if (lower.includes('tv') || lower.includes('television') || lower.includes('electron')) return 'tv';
+    if (lower.includes('fridge') || lower.includes('refrigerator')) return 'refrigerator';
+    if (lower.includes('plumb')) return 'plumbing';
+    if (lower.includes('electric') || lower.includes('wiring')) return 'electrical';
+    if (lower.includes('carpenter')) return 'carpenter';
+    if (lower.includes('mobile')) return 'mobile';
+    if (lower.includes('laptop') || lower.includes('pc') || lower.includes('computer')) return 'laptop';
+    return lower;
+  };
+
+  // Find the best matching business from businesses[] for a given category string
+  const findMatchingBusiness = (category) => {
+    const normCat = normalize(category);
+    const match = businesses.find(biz => normalize(biz) === normCat);
+    return match || businesses[0] || 'OVERALL';
+  };
+
+  const isAssigned = (category) => {
+    if (!category) return false;
+    const normCat = normalize(category);
+    if (selectedBusiness !== 'OVERALL') {
+      return normCat === normalize(selectedBusiness);
+    }
+    return businesses.some(biz => normCat === normalize(biz));
+  };
+
   // Dynamic Filtering based on selectedBusiness
-  const filteredRequests = selectedBusiness === 'OVERALL' 
-    ? allServiceRequests 
-    : allServiceRequests.filter(r => r.category.toLowerCase() === selectedBusiness.toLowerCase() || r.category.toLowerCase().includes(selectedBusiness.toLowerCase()));
-
-  const filteredBookings = selectedBusiness === 'OVERALL' 
-    ? allBookings 
-    : allBookings.filter(b => b.category.toLowerCase() === selectedBusiness.toLowerCase() || b.category.toLowerCase().includes(selectedBusiness.toLowerCase()));
-
-  const filteredCustomers = selectedBusiness === 'OVERALL' 
-    ? allCustomers 
-    : allCustomers.filter(c => c.category.toLowerCase() === selectedBusiness.toLowerCase() || c.category.toLowerCase().includes(selectedBusiness.toLowerCase()));
-
-  const filteredTechnicians = selectedBusiness === 'OVERALL' 
-    ? allTechnicians 
-    : allTechnicians.filter(t => t.category.toLowerCase() === selectedBusiness.toLowerCase() || t.category.toLowerCase().includes(selectedBusiness.toLowerCase()));
-
-  const filteredPayments = selectedBusiness === 'OVERALL' 
-    ? allPayments 
-    : allPayments.filter(p => p.category.toLowerCase() === selectedBusiness.toLowerCase() || p.category.toLowerCase().includes(selectedBusiness.toLowerCase()));
-
-  const filteredReviews = selectedBusiness === 'OVERALL' 
-    ? allReviews 
-    : allReviews.filter(r => r.category.toLowerCase() === selectedBusiness.toLowerCase() || r.category.toLowerCase().includes(selectedBusiness.toLowerCase()));
+  const filteredRequests = allServiceRequests.filter(r => isAssigned(r.category));
+  const filteredBookings = allBookings.filter(b => isAssigned(b.category));
+  const filteredCustomers = allCustomers.filter(c => isAssigned(c.category));
+  const filteredTechnicians = allTechnicians.filter(t => isAssigned(t.category));
+  const filteredPayments = allPayments.filter(p => isAssigned(p.category));
+  const filteredReviews = allReviews.filter(r => isAssigned(r.category));
 
   // Render Service Menu View content if active menu is NOT 'Dashboard'
   if (activeMenu !== 'Dashboard') {
     return (
       <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-6 animate-fade-in text-base text-slate-800">
-        <div className="border-b border-slate-100 pb-3 flex justify-between items-center">
-          <div>
-            <h2 className="text-lg font-extrabold text-slate-900">{activeMenu} Console</h2>
-            <p className="text-sm text-slate-500 font-medium">Business Category: {selectedBusiness}</p>
-          </div>
-          <span className="text-sm bg-slate-105 text-slate-600 px-3 py-1 rounded-full font-bold uppercase tracking-wider">
-            {selectedBusiness}
-          </span>
-        </div>
 
         {activeMenu === 'Service Requests' && (
           <div className="space-y-4">
@@ -248,7 +290,17 @@ const Dashboard = () => {
                   </div>
                   <p className="text-sm text-slate-655 bg-white p-2.5 rounded-xl border border-slate-100">"{req.issue}"</p>
                   <div className="flex gap-2">
-                    <button onClick={() => { setActiveMenu('Dashboard'); setSelectedBusiness(req.category); }} className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold px-4 py-2 rounded-xl text-xs">Accept Job</button>
+                    <button
+                      onClick={() => {
+                        // Find the matching business sidebar entry for this job's category
+                        const matchedBiz = findMatchingBusiness(req.category);
+                        setSelectedBusiness(matchedBiz);
+                        setActiveMenu('Dashboard');
+                      }}
+                      className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold px-4 py-2 rounded-xl text-xs"
+                    >
+                      Accept Job
+                    </button>
                     <button className="bg-white border border-slate-200 text-red-500 font-bold px-3 py-2 rounded-xl text-xs">Decline</button>
                   </div>
                 </div>
@@ -375,15 +427,41 @@ const Dashboard = () => {
 
         {activeMenu === 'Notifications' && (
           <div className="space-y-3">
-            {[
-              { msg: `New assignment logged in ${selectedBusiness}`, time: 'Just now' },
-              { msg: `Customer verified schedule update for ${selectedBusiness}`, time: '10 mins ago' }
-            ].map((n, i) => (
-              <div key={i} className="p-3 border border-slate-150 rounded-xl bg-slate-50/20 text-xs">
-                <p className="font-bold text-slate-800">{n.msg}</p>
-                <span className="text-[10px] text-slate-450 font-bold block mt-1">{n.time}</span>
-              </div>
-            ))}
+            {(() => {
+              const mockNotifications = [
+                { id: 1, message: 'New AC repair assignment at Koramangala', category: 'AC', time: 'Just now' },
+                { id: 2, message: 'Washing Machine service request scheduled', category: 'Washing Machine', time: '10 mins ago' },
+                { id: 3, message: 'TV screen flicker repair job assigned', category: 'TV', time: '1 hour ago' },
+                { id: 4, message: 'Refrigerator cooling issue reported', category: 'Refrigerator', time: '2 hours ago' },
+                { id: 5, message: 'New TV installation request in Indiranagar', category: 'TV', time: 'Yesterday' }
+              ];
+              const source = reduxNotifications.length > 0 ? reduxNotifications : mockNotifications;
+              const filtered = source.filter(n => {
+                const msg = n.message || n.msg || '';
+                const cat = n.category || '';
+                if (selectedBusiness !== 'OVERALL') {
+                  return msg.toLowerCase().includes(selectedBusiness.toLowerCase()) || 
+                         cat.toLowerCase().includes(selectedBusiness.toLowerCase()) ||
+                         selectedBusiness.toLowerCase().includes(cat.toLowerCase());
+                }
+                return businesses.some(biz => 
+                  msg.toLowerCase().includes(biz.toLowerCase()) || 
+                  cat.toLowerCase().includes(biz.toLowerCase()) ||
+                  biz.toLowerCase().includes(cat.toLowerCase())
+                );
+              });
+              
+              return filtered.length > 0 ? (
+                filtered.map((n, i) => (
+                  <div key={i} className="p-3 border border-slate-150 rounded-xl bg-slate-50/20 text-xs">
+                    <p className="font-bold text-slate-800">{n.message || n.msg}</p>
+                    <span className="text-[10px] text-slate-450 font-bold block mt-1">{n.time || '10 mins ago'}</span>
+                  </div>
+                ))
+              ) : (
+                <p className="text-xs text-slate-400 py-6 text-center">No notifications for your assigned business categories.</p>
+              );
+            })()}
           </div>
         )}
 
@@ -416,7 +494,7 @@ const Dashboard = () => {
             <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
               <div className="space-y-1">
                 <span className="text-xs text-slate-700 font-black uppercase tracking-wider block">Today's Revenue</span>
-                <p className="text-2xl font-black text-slate-855">₹{(getVal('OVERALL', 'revenueToday') * businesses.length).toLocaleString()}</p>
+                <p className="text-2xl font-black text-slate-855">₹{getOverallVal('revenue').toLocaleString()}</p>
                 <span className="text-xs text-green-600 font-bold">▲ Combined daily total</span>
               </div>
               <div className="w-9 h-9 rounded-xl bg-purple-50 text-purple-500 flex items-center justify-center border border-purple-100">
@@ -427,7 +505,7 @@ const Dashboard = () => {
             <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
               <div className="space-y-1">
                 <span className="text-xs text-slate-700 font-black uppercase tracking-wider block">Total Customers</span>
-                <p className="text-2xl font-black text-slate-855">{getVal('OVERALL', 'totalCustomers')}</p>
+                <p className="text-2xl font-black text-slate-855">{getOverallVal('customers')}</p>
                 <span className="text-xs text-amber-600 font-bold">Accumulated database</span>
               </div>
               <div className="w-9 h-9 rounded-xl bg-green-50 text-green-500 flex items-center justify-center border border-green-100">
@@ -438,7 +516,7 @@ const Dashboard = () => {
             <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
               <div className="space-y-1">
                 <span className="text-xs text-slate-700 font-black uppercase tracking-wider block">Overall Rating</span>
-                <p className="text-2xl font-black text-slate-855">{getVal('OVERALL', 'overallRating')}</p>
+                <p className="text-2xl font-black text-slate-855">{getOverallRating()}</p>
                 <span className="text-xs text-yellow-600 font-bold">★ Top performance</span>
               </div>
               <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center border border-amber-100">
@@ -865,7 +943,7 @@ const Dashboard = () => {
       {/* ========================================================= */}
       {/* 3. AC REPAIR DASHBOARD VIEW                               */}
       {/* ========================================================= */}
-      {selectedBusiness === 'AC Repair' && (
+      {selectedBusiness === 'AC' && (
         <>
           {/* AC Repair specific KPI Cards */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -873,7 +951,7 @@ const Dashboard = () => {
             <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
               <div className="space-y-1">
                 <span className="text-xs text-slate-700 font-black uppercase tracking-wider block">AC Revenue</span>
-                <p className="text-2xl font-black text-slate-855">₹{getVal('AC Repair', 'revenue').toFixed(2)}</p>
+                <p className="text-2xl font-black text-slate-855">₹{getVal('AC', 'revenue').toFixed(2)}</p>
                 <span className="text-xs text-green-600 font-bold">▲ active this week</span>
               </div>
               <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center border border-amber-100">
@@ -884,7 +962,7 @@ const Dashboard = () => {
             <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
               <div className="space-y-1">
                 <span className="text-xs text-slate-700 font-black uppercase tracking-wider block">Gas Filling Jobs</span>
-                <p className="text-2xl font-black text-slate-805">{getVal('AC Repair', 'gasFilling')}</p>
+                <p className="text-2xl font-black text-slate-805">{getVal('AC', 'gasFilling')}</p>
                 <span className="text-xs text-amber-600 font-bold">Cylinder refill queue</span>
               </div>
               <div className="w-9 h-9 rounded-xl bg-purple-50 text-purple-500 flex items-center justify-center border border-purple-100">
@@ -895,7 +973,7 @@ const Dashboard = () => {
             <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
               <div className="space-y-1">
                 <span className="text-xs text-slate-700 font-black uppercase tracking-wider block">Installation Jobs</span>
-                <p className="text-2xl font-black text-slate-805">{getVal('AC Repair', 'installation')}</p>
+                <p className="text-2xl font-black text-slate-805">{getVal('AC', 'installation')}</p>
                 <span className="text-xs text-green-600 font-bold">Split & Window installs</span>
               </div>
               <div className="w-9 h-9 rounded-xl bg-green-50 text-green-500 flex items-center justify-center border border-green-100">
@@ -906,7 +984,7 @@ const Dashboard = () => {
             <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
               <div className="space-y-1">
                 <span className="text-xs text-slate-700 font-black uppercase tracking-wider block">AC Rating</span>
-                <p className="text-2xl font-black text-slate-805">★ {getVal('AC Repair', 'rating')}</p>
+                <p className="text-2xl font-black text-slate-805">★ {getVal('AC', 'rating')}</p>
                 <span className="text-xs text-yellow-600 font-bold">Highly reviewed</span>
               </div>
               <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center border border-amber-100">
@@ -946,15 +1024,15 @@ const Dashboard = () => {
               <div className="space-y-3 pt-2">
                 <div className="flex justify-between border-b pb-2">
                   <span>AC Customers</span>
-                  <span className="text-slate-900 font-extrabold">{getVal('AC Repair', 'customers')} users</span>
+                  <span className="text-slate-900 font-extrabold">{getVal('AC', 'customers')} users</span>
                 </div>
                 <div className="flex justify-between border-b pb-2">
                   <span>Pending Tasks</span>
-                  <span className="text-amber-600 font-extrabold">{getVal('AC Repair', 'pending')} jobs</span>
+                  <span className="text-amber-600 font-extrabold">{getVal('AC', 'pending')} jobs</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Completed Tasks</span>
-                  <span className="text-green-600 font-extrabold">{getVal('AC Repair', 'completed')} jobs</span>
+                  <span className="text-green-600 font-extrabold">{getVal('AC', 'completed')} jobs</span>
                 </div>
               </div>
             </div>
@@ -966,27 +1044,200 @@ const Dashboard = () => {
       {/* ========================================================= */}
       {/* 4. OTHER DYNAMIC BUSINESS VIEWS (Fallback dashboard)       */}
       {/* ========================================================= */}
-      {selectedBusiness !== 'OVERALL' && selectedBusiness !== 'Washing Machine' && selectedBusiness !== 'TV' && selectedBusiness !== 'AC Repair' && (
-        <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm space-y-6 text-center">
-          <BookOpen className="w-16 h-16 text-amber-500 mx-auto" />
-          <div>
-            <h3 className="text-lg font-black text-slate-855">{selectedBusiness} Dashboard</h3>
-            <p className="text-xs text-slate-405 max-w-md mx-auto mt-1">
-              Newly created service business segment dashboard. Statistics and job sheets will update dynamically as service bookings are received.
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-2 max-w-md mx-auto gap-4 pt-4">
-            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-150 text-left">
-              <span className="text-[10px] text-slate-400 font-bold block uppercase">Today's Revenue</span>
-              <span className="text-xl font-black text-slate-800">₹{(getVal(selectedBusiness, 'revenue', 450)).toLocaleString()}</span>
+      {selectedBusiness !== 'OVERALL' && selectedBusiness !== 'Washing Machine' && selectedBusiness !== 'TV' && selectedBusiness !== 'AC' && (
+        <>
+          {/* Generic Business KPI Cards */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
+              <div className="space-y-1">
+                <span className="text-xs text-slate-700 font-black uppercase tracking-wider block">Revenue Today</span>
+                <p className="text-2xl font-black text-slate-855">₹{getVal(selectedBusiness, 'revenue', 650).toLocaleString()}</p>
+                <span className="text-xs text-green-600 font-bold">▲ Active this week</span>
+              </div>
+              <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center border border-amber-100">
+                <DollarSign className="h-4.5 w-4.5" />
+              </div>
             </div>
-            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-150 text-left">
-              <span className="text-[10px] text-slate-400 font-bold block uppercase">Completed Repairs</span>
-              <span className="text-xl font-black text-slate-800">{getVal(selectedBusiness, 'completedRepairs', 10)}</span>
+
+            <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
+              <div className="space-y-1">
+                <span className="text-xs text-slate-700 font-black uppercase tracking-wider block">Pending Jobs</span>
+                <p className="text-2xl font-black text-slate-855">{getVal(selectedBusiness, 'pending', 2)}</p>
+                <span className="text-xs text-red-500 font-bold">Requires attention</span>
+              </div>
+              <div className="w-9 h-9 rounded-xl bg-red-50 text-red-400 flex items-center justify-center border border-red-100">
+                <Clock className="h-4.5 w-4.5" />
+              </div>
+            </div>
+
+            <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
+              <div className="space-y-1">
+                <span className="text-xs text-slate-700 font-black uppercase tracking-wider block">Completed</span>
+                <p className="text-2xl font-black text-slate-855">{getVal(selectedBusiness, 'completedRepairs', 12)}</p>
+                <span className="text-xs text-green-600 font-bold">Successfully resolved</span>
+              </div>
+              <div className="w-9 h-9 rounded-xl bg-green-50 text-green-500 flex items-center justify-center border border-green-100">
+                <CheckCircle2 className="h-4.5 w-4.5" />
+              </div>
+            </div>
+
+            <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
+              <div className="space-y-1">
+                <span className="text-xs text-slate-700 font-black uppercase tracking-wider block">Rating</span>
+                <p className="text-2xl font-black text-slate-855">★ {getVal(selectedBusiness, 'rating', 4.8)}</p>
+                <span className="text-xs text-yellow-600 font-bold">Customer satisfaction</span>
+              </div>
+              <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center border border-amber-100">
+                <Star className="h-4.5 w-4.5 fill-amber-400" />
+              </div>
             </div>
           </div>
-        </div>
+
+          {/* Job Workflow + Customer Info */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div className="lg:col-span-8 space-y-5">
+
+              {/* Job Workflow Steps */}
+              <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm">
+                <h3 className="font-extrabold text-slate-800 text-sm mb-4">{selectedBusiness} – Active Job Workflow</h3>
+                <div className="flex items-center justify-between mb-6">
+                  {[
+                    { s: 2, name: 'Accepted' },
+                    { s: 3, name: 'On Way' },
+                    { s: 4, name: 'Arrived' },
+                    { s: 5, name: 'Pre-Photo' },
+                    { s: 6, name: 'Repairing' },
+                    { s: 7, name: 'Post-Photo' },
+                    { s: 8, name: 'Payment' },
+                    { s: 9, name: 'Done' }
+                  ].map((step, idx, arr) => (
+                    <div key={step.s} className="flex flex-col items-center flex-1">
+                      <div className={`w-7 h-7 rounded-full border-2 flex items-center justify-center text-[10px] font-extrabold transition-all ${
+                        workflowStep >= step.s
+                          ? 'bg-amber-500 border-amber-500 text-white'
+                          : 'bg-slate-100 border-slate-200 text-slate-400'
+                      }`}>{idx + 1}</div>
+                      {idx < arr.length - 1 && (
+                        <div className={`h-0.5 w-full mt-3.5 ${ workflowStep > step.s ? 'bg-amber-400' : 'bg-slate-200'}`} style={{marginTop:'-18px',zIndex:0}} />
+                      )}
+                      <span className={`text-[10px] font-bold mt-1 uppercase tracking-tight ${
+                        workflowStep === step.s ? 'text-amber-600 font-extrabold' : 'text-slate-400'
+                      }`}>{step.name}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="border border-slate-150 rounded-2xl p-5 bg-slate-50/40 space-y-4">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <span className="text-xs bg-amber-50 text-amber-700 border border-amber-100 px-2 py-0.5 rounded font-black uppercase">JOB ID: #SRV-{Math.floor(Math.random() * 900000 + 100000)}</span>
+                      <h4 className="font-extrabold text-slate-800 text-base pt-1">{selectedBusiness} Service Request</h4>
+                      <p className="text-xs text-slate-500 font-medium">Customer reported issue — awaiting on-site diagnosis.</p>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-xs text-slate-400 font-bold block">BASE CHARGE</span>
+                      <span className="text-base font-black text-slate-800">₹{getVal(selectedBusiness, 'revenue', 650)}</span>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-slate-100 pt-3">
+                    {workflowStep === 2 && (
+                      <div className="space-y-3">
+                        <div className="bg-amber-50 border border-amber-100 text-amber-700 p-3 rounded-xl text-xs font-bold text-center">✓ Job Accepted! Prepare your tools and start transit.</div>
+                        <button onClick={() => setWorkflowStep(3)} className="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold py-3 rounded-2xl text-xs flex items-center justify-center gap-1.5">
+                          <Navigation className="w-4 h-4" /> Start Traveling
+                        </button>
+                      </div>
+                    )}
+                    {workflowStep === 3 && (
+                      <div className="space-y-3">
+                        <div className="grid grid-cols-2 gap-3 text-xs">
+                          <div className="bg-slate-50 p-2.5 rounded-xl"><span className="text-[10px] text-slate-400 font-bold block uppercase">ETA</span><span className="font-bold text-slate-800">12 min away</span></div>
+                          <div className="bg-slate-50 p-2.5 rounded-xl"><span className="text-[10px] text-slate-400 font-bold block uppercase">Distance</span><span className="font-bold text-slate-800">4.8 km</span></div>
+                        </div>
+                        <button onClick={() => setWorkflowStep(4)} className="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold py-3 rounded-xl text-xs">Confirm Arrival</button>
+                      </div>
+                    )}
+                    {workflowStep === 4 && (
+                      <div className="space-y-3">
+                        <div className="bg-amber-50 border border-amber-100 text-amber-700 p-3 rounded-xl text-xs font-bold text-center">✓ Arrived! Meet the client and check the device.</div>
+                        <button onClick={() => setWorkflowStep(5)} className="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold py-3 rounded-xl text-xs flex items-center justify-center gap-1.5">
+                          <Camera className="w-4 h-4" /> Proceed to Pre-Service Photo
+                        </button>
+                      </div>
+                    )}
+                    {workflowStep === 5 && (
+                      <div className="space-y-3">
+                        <p className="text-xs text-slate-500 font-bold">Document Pre-Service Condition:</p>
+                        <div className="flex gap-4 items-center">
+                          <div className="w-24 h-20 bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl flex flex-col items-center justify-center text-slate-400"><Camera className="w-5 h-5" /><span className="text-[9px] mt-1 font-bold">PRE-PHOTO</span></div>
+                          <button onClick={() => setWorkflowStep(6)} className="flex-1 py-3.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold text-xs rounded-xl">Upload Photo & Start Repair</button>
+                        </div>
+                      </div>
+                    )}
+                    {workflowStep === 6 && (
+                      <div className="space-y-3 text-center py-2">
+                        <div className="flex justify-center items-center gap-2"><span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping"></span><span className="text-sm font-black text-slate-800">Repair Timer: {formatTimer(timerSeconds)}</span></div>
+                        <p className="text-xs text-slate-500 font-semibold">Troubleshooting device. Perform necessary hardware repair steps.</p>
+                        <button onClick={() => setWorkflowStep(7)} className="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold py-3 rounded-xl text-xs">Complete Repair & Take Post-Photo</button>
+                      </div>
+                    )}
+                    {workflowStep === 7 && (
+                      <div className="space-y-3">
+                        <p className="text-xs text-slate-500 font-bold">Document Completed Work:</p>
+                        <div className="flex gap-4 items-center">
+                          <div className="w-24 h-20 bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl flex flex-col items-center justify-center text-slate-400"><CheckCircle2 className="w-5 h-5 text-emerald-500" /><span className="text-[9px] mt-1 font-bold">POST-PHOTO</span></div>
+                          <button onClick={() => setWorkflowStep(8)} className="flex-1 py-3.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold text-xs rounded-xl">Upload & Go to Payment</button>
+                        </div>
+                      </div>
+                    )}
+                    {workflowStep === 8 && (
+                      <div className="space-y-3">
+                        <p className="text-xs text-slate-600 font-bold">Select Payment Mode:</p>
+                        <div className="grid grid-cols-3 gap-2">
+                          <button className="py-2.5 border-2 border-slate-100 hover:border-amber-400 bg-white rounded-xl text-xs font-bold text-slate-700">Cash</button>
+                          <button className="py-2.5 border-2 border-amber-500 bg-amber-50 rounded-xl text-xs font-extrabold text-amber-800">UPI / QR</button>
+                          <button className="py-2.5 border-2 border-slate-100 hover:border-amber-400 bg-white rounded-xl text-xs font-bold text-slate-700">Card POS</button>
+                        </div>
+                        <button onClick={() => setWorkflowStep(9)} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-3 rounded-xl text-xs mt-2">Confirm Payment Collection</button>
+                      </div>
+                    )}
+                    {workflowStep === 9 && (
+                      <div className="space-y-4 text-center py-2">
+                        <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto border border-emerald-100"><Check className="w-6 h-6 stroke-[3px]" /></div>
+                        <h4 className="font-extrabold text-slate-800 text-sm">Service Order Completed!</h4>
+                        <p className="text-[11px] text-slate-500 font-semibold">Invoice emailed to customer. Payout credited.</p>
+                        <button onClick={() => { setWorkflowStep(2); setTimerSeconds(0); }} className="w-full bg-slate-800 hover:bg-slate-900 text-white font-extrabold py-2.5 rounded-xl text-xs">Return to Dispatch Console</button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right side stats panel */}
+            <div className="lg:col-span-4 space-y-4">
+              <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm space-y-4">
+                <h4 className="font-extrabold text-slate-800 text-sm">{selectedBusiness} Metrics</h4>
+                <div className="space-y-3 text-xs font-bold text-slate-700">
+                  <div className="flex justify-between border-b pb-2"><span>Customers</span><span className="text-slate-900 font-extrabold">{getVal(selectedBusiness, 'customers', 18)} users</span></div>
+                  <div className="flex justify-between border-b pb-2"><span>Pending Tasks</span><span className="text-amber-600 font-extrabold">{getVal(selectedBusiness, 'pending', 2)} jobs</span></div>
+                  <div className="flex justify-between border-b pb-2"><span>Completed Tasks</span><span className="text-green-600 font-extrabold">{getVal(selectedBusiness, 'completedRepairs', 12)} jobs</span></div>
+                  <div className="flex justify-between"><span>Avg. Rating</span><span className="text-yellow-600 font-extrabold">★ {getVal(selectedBusiness, 'rating', 4.8)}</span></div>
+                </div>
+              </div>
+
+              <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm space-y-3">
+                <h4 className="font-extrabold text-slate-800 text-sm flex items-center gap-1.5"><User className="w-4 h-4 text-amber-600" /> Customer Info</h4>
+                <div className="space-y-2 text-xs">
+                  <div><span className="text-[10px] text-slate-400 font-bold block uppercase">Customer Name</span><span className="font-bold text-slate-800">Rajesh Kumar</span></div>
+                  <div><span className="text-[10px] text-slate-400 font-bold block uppercase">Mobile</span><span className="font-bold text-amber-600 flex items-center gap-0.5"><Phone className="w-2.5 h-2.5" /> +91 98300 12345</span></div>
+                  <div><span className="text-[10px] text-slate-400 font-bold block uppercase">Address</span><span className="font-medium text-slate-700">No. 8, 2nd Cross, JP Nagar 5th Phase, Bengaluru 560078</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
       )}
 
     </div>

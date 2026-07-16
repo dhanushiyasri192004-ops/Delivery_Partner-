@@ -25,7 +25,7 @@ const Settings = () => {
   const [gpsInterval, setGpsInterval] = useState('High Accuracy (15s)');
   
   // Navigation Tabs
-  const [activeTab, setActiveTab] = useState('Preferences');
+  const [activeTab, setActiveTab] = useState('Profile');
   const [savedMessage, setSavedMessage] = useState('');
 
   const handleToggleOnline = () => {
@@ -40,7 +40,7 @@ const Settings = () => {
   };
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto pb-10 text-slate-805 animate-fade-in">
+    <div className="space-y-6 w-full pb-10 text-slate-805 animate-fade-in">
       
       {/* Save Toast notification */}
       {savedMessage && (
@@ -50,12 +50,13 @@ const Settings = () => {
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-6 w-full">
         
         {/* Left Side: Navigation Links */}
-        <div className="md:col-span-4 bg-white border border-slate-150 rounded-2xl p-4.5 shadow-sm h-fit space-y-1.5 font-bold text-xs text-slate-600">
+        <div className="md:col-span-3 bg-white border border-slate-150 rounded-2xl p-4.5 shadow-sm h-fit space-y-1.5 font-bold text-xs text-slate-600">
           <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-3 block mb-2">Category</span>
           {[
+            { id: 'Profile', label: 'My Profile', icon: User },
             { id: 'Preferences', label: 'App Preferences', icon: Smartphone },
             { id: 'Duty', label: 'Duty Settings', icon: MapPin },
             { id: 'Notifications', label: 'Alert Preferences', icon: Bell },
@@ -84,8 +85,73 @@ const Settings = () => {
         </div>
 
         {/* Right Side: Options Panel Details */}
-        <div className="md:col-span-8 bg-white border border-slate-150 rounded-2xl p-6 shadow-sm min-h-[300px]">
+        <div className="md:col-span-9 bg-white border border-slate-150 rounded-2xl p-6 shadow-sm min-h-[300px]">
           
+          {activeTab === 'Profile' && (
+            <div className="space-y-6">
+              <div>
+                <h3 className="font-extrabold text-slate-805 text-sm">My Profile Details</h3>
+                <p className="text-[10px] text-slate-400 font-semibold mt-0.5">Manage personal information and platform details</p>
+              </div>
+
+              {/* 1. Header Profile Banner Card */}
+              <div className="bg-slate-50 p-6 rounded-2xl border border-slate-150 flex flex-col sm:flex-row gap-6 items-center">
+                {/* Avatar Circle */}
+                <div className="w-16 h-16 rounded-full bg-blue-50 text-blue-600 border border-blue-200 flex items-center justify-center font-black text-2xl uppercase shadow-inner flex-shrink-0">
+                  {user?.name?.charAt(0) || 'D'}
+                </div>
+
+                {/* Profile info details */}
+                <div className="space-y-1 text-center sm:text-left flex-1">
+                  <h3 className="text-base font-extrabold text-slate-800 tracking-tight">{user?.name || 'Dhanu'}</h3>
+                  <p className="text-xs text-slate-400 font-semibold capitalize">{user?.role?.replace('_', ' ') || 'Partner'} Category</p>
+                  
+                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 pt-1">
+                    <span className="bg-green-50 border border-green-200 text-green-700 text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                      Approved
+                    </span>
+                    <span className="text-xs text-slate-400 font-semibold">
+                      Registered since {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : '7/9/2026'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* 2. Credentials and details grid split cards */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                {/* Left Card: Personal Credentials */}
+                <div className="border border-slate-150 p-5 rounded-2xl bg-white space-y-3">
+                  <h4 className="font-extrabold text-slate-800 text-xs uppercase tracking-wider pb-2 border-b">Personal Credentials</h4>
+                  <div className="divide-y divide-slate-100 text-xs">
+                    <div className="flex justify-between items-center py-2.5">
+                      <span className="text-slate-450 font-semibold">Email Address</span>
+                      <span className="font-black text-slate-700">{user?.email || 'dhanushiya@gmail.com'}</span>
+                    </div>
+                    <div className="flex justify-between items-center py-2.5">
+                      <span className="text-slate-450 font-semibold">Mobile Number</span>
+                      <span className="font-black text-slate-700">{user?.mobileNumber || '+91 98765 43210'}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right Card: Platform Details */}
+                <div className="border border-slate-150 p-5 rounded-2xl bg-white space-y-3">
+                  <h4 className="font-extrabold text-slate-805 text-xs uppercase tracking-wider pb-2 border-b">Identity Info</h4>
+                  <div className="divide-y divide-slate-100 text-xs">
+                    <div className="flex justify-between items-center py-2.5">
+                      <span className="text-slate-450 font-semibold">Aadhaar Number</span>
+                      <span className="font-black text-slate-750 font-mono">•••• •••• {profile?.aadhaarNumber ? profile.aadhaarNumber.slice(-4) : '5656'}</span>
+                    </div>
+                    <div className="flex justify-between items-center py-2.5">
+                      <span className="text-slate-450 font-semibold">PAN Number</span>
+                      <span className="font-black text-slate-750 uppercase font-mono">{profile?.panNumber || 'PAN54337'}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {activeTab === 'Preferences' && (
             <div className="space-y-6">
               <div>

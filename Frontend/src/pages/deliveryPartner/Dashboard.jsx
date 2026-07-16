@@ -115,6 +115,13 @@ const Dashboard = () => {
 
   useEffect(() => {
     dispatch(fetchDeliveryDashboard());
+
+    // Poll for new orders every 10 minutes
+    const interval = setInterval(() => {
+      dispatch(fetchDeliveryDashboard());
+    }, 10 * 60 * 1000);
+
+    return () => clearInterval(interval);
   }, [dispatch]);
 
   useEffect(() => {
@@ -308,9 +315,11 @@ const Dashboard = () => {
             <XCircle className="h-6 w-6" />
           </div>
         </Link>
-          {/* Active Order Notice Banner */}
-      {activeOrder && (
-        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-fade-in">
+      </div>
+
+      {/* Active Order Notice Banner / Waiting Status */}
+      {activeOrder ? (
+        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-fade-in w-full">
           <div className="flex gap-3 items-start sm:items-center">
             <span className="text-2xl">📦</span>
             <div>
@@ -325,8 +334,15 @@ const Dashboard = () => {
             Open Order Console
           </Link>
         </div>
+      ) : (
+        <div className="bg-blue-50 border border-blue-200 rounded-2xl p-5 flex items-center gap-3.5 animate-fade-in w-full text-slate-700">
+          <span className="text-2xl">✨</span>
+          <div>
+            <h5 className="font-extrabold text-slate-900 text-sm">Hey, waiting for a new order...</h5>
+            <p className="text-xs text-slate-500 font-semibold mt-0.5">Stay online to receive incoming delivery requests near your area.</p>
+          </div>
+        </div>
       )}
-      </div>
 
 
       {/* Row 3: Quick Access, Earnings graph preview, Performance Gauges (Matches wireframe bottom row) */}
@@ -414,53 +430,23 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Performance circular indicator */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col items-center justify-between text-center transition-all hover:shadow-lg hover:shadow-brand/5 hover:border-brand/30 duration-500 transform hover:-translate-y-1">
-          <h4 className="font-bold text-slate-800 text-sm w-full text-left">Performance</h4>
+        {/* Performance Score Card */}
+        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between min-h-[180px] transition-all hover:shadow-md duration-300">
+          <div>
+            <h4 className="font-bold text-slate-800 text-sm">Performance Score</h4>
+          </div>
           
-          <div className="relative flex items-center justify-center my-3 group cursor-pointer">
-            <style>{`
-              @keyframes rotate-progress {
-                from { stroke-dashoffset: 238; }
-                to { stroke-dashoffset: 24; }
-              }
-              @keyframes pulse-soft {
-                0%, 100% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(245, 158, 11, 0.2)); }
-                50% { transform: scale(1.04); filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.4)); }
-              }
-              .animate-circle {
-                stroke-dasharray: 238;
-                stroke-dashoffset: 238;
-                animation: rotate-progress 2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-              }
-              .pulse-container {
-                animation: pulse-soft 3s infinite ease-in-out;
-              }
-            `}</style>
-            
-            {/* SVG circle track with gradient stroke */}
-            <svg className="w-24 h-24 transform -rotate-90 group-hover:rotate-0 transition-all duration-700 ease-out pulse-container">
-              <defs>
-                <linearGradient id="perfGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#fbbf24" />
-                  <stop offset="50%" stopColor="#f59e0b" />
-                  <stop offset="100%" stopColor="#d97706" />
-                </linearGradient>
-              </defs>
-              <circle className="text-slate-100" strokeWidth="8" stroke="currentColor" fill="transparent" r="38" cx="48" cy="48" />
-              <circle stroke="url(#perfGrad)" strokeWidth="8" strokeDasharray="238" strokeDashoffset="24" strokeLinecap="round" fill="transparent" r="38" cx="48" cy="48" className="animate-circle" />
-            </svg>
-            
-            <div className="absolute text-center transition-all duration-300 transform group-hover:scale-110">
-              <span className="text-xl font-black text-slate-800 tracking-tight block">90%</span>
-              <span className="text-[8px] text-brand block font-black tracking-widest mt-0.5 relative flex items-center justify-center gap-0.5">
-                EXCELLENT <span className="animate-bounce">✨</span>
-              </span>
+          <div className="space-y-3.5 my-3">
+            <div className="flex items-baseline gap-1">
+              <span className="text-4xl font-black text-green-600">92</span>
+              <span className="text-sm text-slate-400 font-bold">/ 100</span>
+            </div>
+            <p className="text-xs font-black text-green-600">Excellent Performer</p>
+            <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+              <div className="bg-green-500 h-full rounded-full transition-all duration-500" style={{ width: '92%' }}></div>
             </div>
           </div>
-          <div className="space-y-1">
-            <p className="text-xs text-slate-500 font-medium">Keep up the great work! 🚀</p>
-          </div>
+          <p className="text-[10px] text-slate-400 font-medium">Keep maintaining high ratings to unlock priority peak shifts!</p>
         </div>
       </div>
 

@@ -29,6 +29,32 @@ import {
 const Dashboard = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  const renderPaymentOrMembership = (status, guestName) => {
+    const membershipMap = {
+      'Priya Patel': 'MC Gold',
+      'Amit Sharma': 'MC Silver',
+      'Sneha Iyer': 'MC Diamond',
+      'Vikram Singh': 'MC Gold'
+    };
+    const memberCard = membershipMap[guestName];
+    if (memberCard && status === 'Paid') {
+      let badgeColor = 'bg-slate-100 text-slate-707 border-slate-205';
+      if (memberCard === 'MC Gold') badgeColor = 'bg-amber-50 text-amber-700 border border-amber-200';
+      if (memberCard === 'MC Diamond') badgeColor = 'bg-cyan-50 text-cyan-700 border border-cyan-200';
+      if (memberCard === 'MC Silver') badgeColor = 'bg-slate-100 text-slate-655 border border-slate-200';
+      return (
+        <span className={`px-2.5 py-1 rounded-lg text-[9px] font-extrabold uppercase border ${badgeColor}`}>
+          {memberCard}
+        </span>
+      );
+    }
+    return (
+      <span className={`px-2.5 py-1 rounded-lg font-extrabold border ${
+        status === 'Paid' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-amber-50 text-amber-700'
+      }`}>{status}</span>
+    );
+  };
   
   const bookings = useSelector(state => state.stay.bookings);
   const pendingBookings = bookings.filter(b => b.status === 'pending');
@@ -202,17 +228,14 @@ const Dashboard = () => {
                   </div>
                   <div>
                     <p className="text-xs font-extrabold text-slate-800">{b.guest}</p>
-                    <p className="text-[10px] text-slate-400 font-semibold">{b.id} · {b.room} · {b.dates} ({b.nights}N)</p>
+                    <p className="text-[10px] text-slate-400 font-semibold">{b.id} · {b.roomType} · {b.dates} ({b.nights}N)</p>
                   </div>
                 </div>
 
                 {/* Source & Payment */}
                 <div className="hidden md:flex items-center gap-3 text-[10px] font-bold">
                   <span className="bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg">{b.source}</span>
-                  <span className={`px-2.5 py-1 rounded-lg font-extrabold
-                    ${b.payment === 'Paid' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}`}>
-                    {b.payment}
-                  </span>
+                  {renderPaymentOrMembership(b.payment, b.guest)}
                 </div>
 
                 {/* Status / Action */}

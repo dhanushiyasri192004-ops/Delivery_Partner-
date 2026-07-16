@@ -59,6 +59,16 @@
       "password": "$2a$10$1iB3.mJUYgb.S9P4skpDHOSfyNAwwAAeWHmZF8JF.Mn02t0L.zUGG",
       "mobileNumber": "9988001133",
       "role": "executive"
+    },
+    {
+      "_id": "spfkxezoc",
+      "createdAt": "2026-07-16T11:56:32.994Z",
+      "updatedAt": "2026-07-16T11:56:32.994Z",
+      "name": "dhanam",
+      "email": "dhanam@gmail.com",
+      "password": "$2a$10$JU6Lsv5yQreKE2Jv3SyoOeH3n9Pmi0yQyney2DgfsH5wmv0sXxxZm",
+      "mobileNumber": "9345675432",
+      "role": "technician"
     }
   ],
   "deliveryPartners": [
@@ -126,6 +136,22 @@
         "ifscCode": "IDFC547635765",
         "accountNumber": "467678678676",
         "branch": "neeladri"
+      }
+    },
+    {
+      "_id": "vila1hwmh",
+      "createdAt": "2026-07-16T11:56:33.008Z",
+      "updatedAt": "2026-07-16T11:56:33.008Z",
+      "userId": "spfkxezoc",
+      "aadhaarNumber": "345675432145",
+      "panNumber": "ABCDE1234F",
+      "technicianType": "AC, AC Technician, TV / Electronics Technician, Washing Machine Technician, Plumbing Repair & Install, Washing Machine / TV Appliance Repair",
+      "bankDetails": {
+        "bankName": "sbi",
+        "accountHolderName": "dhanam",
+        "ifscCode": "SBIN0001234",
+        "accountNumber": "897675456576879809",
+        "branch": "electronic city"
       }
     }
   ],
@@ -250,6 +276,14 @@
       "createdAt": "2026-07-13T05:46:59.049Z",
       "updatedAt": "2026-07-13T05:46:59.049Z",
       "userId": "usr_stay_4thgecg",
+      "balance": 0,
+      "transactions": []
+    },
+    {
+      "_id": "t64gid5sc",
+      "createdAt": "2026-07-16T11:56:33.003Z",
+      "updatedAt": "2026-07-16T11:56:33.004Z",
+      "userId": "spfkxezoc",
       "balance": 0,
       "transactions": []
     }
@@ -530,7 +564,7 @@
       "customerId": "cust_982347",
       "vendorId": "vend_182736",
       "deliveryPartnerId": "32crwwt7h",
-      "status": "reached_vendor",
+      "status": "reached_customer",
       "orderType": "Food",
       "priority": "Express",
       "customerName": "Ananya Sen",
@@ -553,7 +587,9 @@
         "longitude": 77.6244
       },
       "createdAt": "2026-07-13T04:25:24.132Z",
-      "updatedAt": "2026-07-13T04:34:17.761Z"
+      "updatedAt": "2026-07-15T05:47:04.921Z",
+      "pickupPhoto": "",
+      "pickupTime": "2026-07-15T05:46:29.225Z"
     }
   ],
   "bookings": [],

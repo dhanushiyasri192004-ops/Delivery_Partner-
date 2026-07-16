@@ -12,6 +12,32 @@ const RoomBookings = () => {
 
   const [activeTab, setActiveTab] = useState('New Bookings');
   const [searchQuery, setSearchQuery] = useState('');
+
+  const renderPaymentOrMembership = (status, guestName) => {
+    const membershipMap = {
+      'Priya Patel': 'MC Gold',
+      'Amit Sharma': 'MC Silver',
+      'Sneha Iyer': 'MC Diamond',
+      'Vikram Singh': 'MC Gold'
+    };
+    const memberCard = membershipMap[guestName];
+    if (memberCard && status === 'Paid') {
+      let badgeColor = 'bg-slate-100 text-slate-700 border-slate-200';
+      if (memberCard === 'MC Gold') badgeColor = 'bg-amber-50 text-amber-700 border border-amber-200';
+      if (memberCard === 'MC Diamond') badgeColor = 'bg-cyan-50 text-cyan-700 border border-cyan-200';
+      if (memberCard === 'MC Silver') badgeColor = 'bg-slate-100 text-slate-600 border border-slate-200';
+      return (
+        <span className={`px-2.5 py-1 rounded-full text-[9px] font-bold uppercase border ${badgeColor}`}>
+          {memberCard}
+        </span>
+      );
+    }
+    return (
+      <span className={`px-2.5 py-1 rounded-full text-[9px] font-bold uppercase border ${
+        status === 'Paid' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-amber-50 text-amber-700 border-amber-100'
+      }`}>{status}</span>
+    );
+  };
   const [roomTypeFilter, setRoomTypeFilter] = useState('All');
   const [statusFilter, setStatusFilter] = useState('All');
   const [showAddBookingModal, setShowAddBookingModal] = useState(false);
@@ -207,9 +233,7 @@ const RoomBookings = () => {
                     }`}>{b.source}</span>
                   </td>
                   <td className="py-3.5">
-                    <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase ${
-                      b.payment === 'Paid' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'
-                    }`}>{b.payment}</span>
+                    {renderPaymentOrMembership(b.payment, b.guest)}
                   </td>
                   <td className="py-3.5 text-xs">
                     <span className={`px-2 py-0.5 rounded font-bold uppercase text-[9px] ${

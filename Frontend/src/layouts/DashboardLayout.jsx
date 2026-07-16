@@ -72,11 +72,14 @@ const DashboardLayout = () => {
   const [businesses, setBusinesses] = useState(() => {
     if (user?.role === 'technician') {
       const saved = localStorage.getItem(`tech_businesses_${user.id}`);
-      if (saved) return JSON.parse(saved);
-      // Clean display name of profile technician type
+      if (saved) {
+        // Deduplicate any previously saved data
+        const parsed = JSON.parse(saved);
+        return [...new Set(parsed)];
+      }
+      // Keep full specialty names and deduplicate
       const primaryType = profile?.technicianType || 'Washing Machine Technician';
-      const cleanPrimary = primaryType.replace(' Technician', '').replace(' Repair', '');
-      return [cleanPrimary];
+      return [...new Set(primaryType.split(',').map(s => s.trim()).filter(Boolean))];
     }
     return [];
   });
@@ -96,7 +99,7 @@ const DashboardLayout = () => {
   const [newBizFormData, setNewBizFormData] = useState({
     businessType: 'AC Repair',
     businessName: '',
-    logo: '🛠️',
+    logo: '',
     description: '',
     workingHours: '09:00 AM - 06:00 PM',
     serviceArea: 'Koramangala, HSR Layout, JP Nagar',
@@ -104,10 +107,29 @@ const DashboardLayout = () => {
   });
   const [bizFormError, setBizFormError] = useState('');
 
-  // Sync businesses to localStorage
+  // On mount: deduplicate any stale localStorage businesses (fix duplicate entries)
+  useEffect(() => {
+    if (user?.role === 'technician') {
+      const key = `tech_businesses_${user.id}`;
+      const saved = localStorage.getItem(key);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        const deduped = [...new Set(parsed)];
+        if (deduped.length !== parsed.length) {
+          // Stale duplicates found — fix and re-save
+          localStorage.setItem(key, JSON.stringify(deduped));
+          setBusinesses(deduped);
+        }
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Sync businesses to localStorage (always deduplicated)
   useEffect(() => {
     if (user?.role === 'technician' && businesses.length > 0) {
-      localStorage.setItem(`tech_businesses_${user.id}`, JSON.stringify(businesses));
+      const deduped = [...new Set(businesses)];
+      localStorage.setItem(`tech_businesses_${user.id}`, JSON.stringify(deduped));
     }
   }, [businesses, user]);
 
@@ -208,8 +230,16 @@ const DashboardLayout = () => {
         'withdraw': 'Wallet',
         'history': 'Performance',
         'notifications': 'Chat Support',
-        'settings': 'Settings',
-        'profile': 'Profile'
+        'settings': 'Profile & Settings',
+        'profile': 'Profile & Settings'
+      };
+      return mapping[lastSegment] || lastSegment.replace('-', ' ');
+    }
+    if (path.startsWith('/technician/')) {
+      const mapping = {
+        'dashboard': 'Dashboard',
+        'settings': 'Profile & Settings',
+        'profile': 'Profile & Settings'
       };
       return mapping[lastSegment] || lastSegment.replace('-', ' ');
     }
@@ -328,16 +358,19 @@ const DashboardLayout = () => {
       return;
     }
     
-    // Save to businesses list
-    const cleanBizType = newBizFormData.businessType.replace(' Technician', '').replace(' Repair', '');
-    if (businesses.includes(cleanBizType)) {
+    // Keep full business type name — no stripping
+    const bizType = newBizFormData.businessType;
+    const alreadyExists = businesses.some(
+      b => b.toLowerCase() === bizType.toLowerCase()
+    );
+    if (alreadyExists) {
       setBizFormError('Business category already exists!');
       return;
     }
     setBizFormError('');
 
-    setBusinesses((prev) => [...prev, cleanBizType]);
-    setSelectedBusiness(cleanBizType);
+    setBusinesses((prev) => [...new Set([...prev, bizType])]);
+    setSelectedBusiness(bizType);
     setActiveMenu('Dashboard');
     setShowAddBusinessModal(false);
 
@@ -345,7 +378,7 @@ const DashboardLayout = () => {
     setNewBizFormData({
       businessType: 'AC Repair',
       businessName: '',
-      logo: '🛠️',
+      logo: '',
       description: '',
       workingHours: '09:00 AM - 06:00 PM',
       serviceArea: 'Koramangala, HSR Layout, JP Nagar',
@@ -365,7 +398,7 @@ const DashboardLayout = () => {
           { name: 'Membership Card', path: '/delivery/membership', icon: CreditCard },
           { name: 'Performance', path: '/delivery/history', icon: PieChart },
           { name: 'Chat Support', path: '/delivery/notifications', icon: Headphones },
-          { name: 'Settings', path: '/delivery/settings', icon: Settings },
+          { name: 'Profile & Settings', path: '/delivery/settings', icon: Settings },
         ];
       case 'executive':
         {
@@ -376,8 +409,6 @@ const DashboardLayout = () => {
               { name: 'Room Bookings', path: '/executive/bookings', icon: Calendar },
               { name: 'Room Management', path: '/executive/rooms', icon: Hotel },
               { name: 'Check-in / Check-out', path: '/executive/checkin-checkout', icon: CheckCircle },
-              { name: 'Housekeeping', path: '/executive/housekeeping', icon: Sparkles },
-              { name: 'Maintenance', path: '/executive/maintenance', icon: Wrench },
               { name: 'Complaints', path: '/executive/complaints', icon: AlertCircle },
               { name: 'Payments & Bills', path: '/executive/payments', icon: CreditCard },
               { name: 'Guest Directory', path: '/executive/guests', icon: User },
@@ -407,20 +438,17 @@ const DashboardLayout = () => {
 
   const navLinks = getNavLinks();
 
-  // Helper for rendering business category icons
-  const getBizIcon = (bizName) => {
-    switch (bizName.toLowerCase()) {
-      case 'washing machine': return '🛠️';
-      case 'ac repair':
-      case 'ac': return '❄️';
-      case 'refrigerator': return '🧊';
-      case 'tv repair':
-      case 'tv': return '📺';
-      case 'geyser': return '🔥';
-      case 'electrician': return '⚡';
-      case 'plumber': return '🚰';
-      default: return '💼';
-    }
+  // Helper for rendering business category icons (Lucide icons, no emojis)
+  const getBizIconComponent = (bizName) => {
+    const n = bizName.toLowerCase();
+    if (n.includes('ac') || n.includes('air condition')) return <Activity className="h-3.5 w-3.5 text-blue-500" />;
+    if (n.includes('washing') || n.includes('appliance')) return <Layers className="h-3.5 w-3.5 text-indigo-500" />;
+    if (n.includes('refrigerator') || n.includes('fridge')) return <Sparkles className="h-3.5 w-3.5 text-cyan-500" />;
+    if (n.includes('tv') || n.includes('electron') || n.includes('mobile') || n.includes('laptop') || n.includes('pc')) return <Star className="h-3.5 w-3.5 text-purple-500" />;
+    if (n.includes('plumb')) return <Wrench className="h-3.5 w-3.5 text-teal-500" />;
+    if (n.includes('electric') || n.includes('wiring')) return <TrendingUp className="h-3.5 w-3.5 text-yellow-500" />;
+    if (n.includes('carpenter')) return <Briefcase className="h-3.5 w-3.5 text-orange-500" />;
+    return <Briefcase className="h-3.5 w-3.5 text-slate-400" />;
   };
 
   return (
@@ -510,20 +538,10 @@ const DashboardLayout = () => {
                             : 'text-slate-600 hover:bg-slate-50'
                         }`}
                       >
-                        <span className="mr-2 text-sm">{getBizIcon(biz)}</span>
                         {biz}
                       </button>
                     );
                   })}
-                  
-                  {/* Add Business Link */}
-                  <button
-                    onClick={() => setShowAddBusinessModal(true)}
-                    className="flex items-center w-full px-3 py-1.5 text-sm font-black text-amber-600 hover:bg-amber-50 rounded-xl transition-all"
-                  >
-                    <Plus className="mr-2 h-4 w-4" />
-                    Add Business
-                  </button>
                 </div>
 
                 {/* SERVICE MENU SECTION */}
@@ -540,7 +558,8 @@ const DashboardLayout = () => {
                     { name: 'Reviews', icon: Star },
                     { name: 'Reports', icon: FileText },
                     { name: 'Membership Card', icon: CreditCard, path: '/technician/membership' },
-                    { name: 'Notifications', icon: Bell }
+                    { name: 'Notifications', icon: Bell },
+                    { name: 'Profile & Settings', icon: Settings, path: '/technician/settings' }
                   ].map((menuItem) => {
                     const isActive = activeMenu === menuItem.name;
                     const Icon = menuItem.icon;
@@ -633,12 +652,21 @@ const DashboardLayout = () => {
                 <p className="text-xs text-slate-600 font-bold mt-1">Ready to deliver smiles today!</p>
               </div>
             ) : location.pathname === '/technician/dashboard' ? (
-              <div>
-                <h2 className="text-xl font-extrabold text-slate-800 tracking-tight leading-tight">
-                  Welcome, {user?.name || 'Dhanu'}
-                </h2>
-                <p className="text-xs text-slate-600 font-bold mt-1">Technician Dispatch Console</p>
-              </div>
+              activeMenu === 'Dashboard' ? (
+                <div>
+                  <h2 className="text-xl font-extrabold text-slate-800 tracking-tight leading-tight">
+                    Welcome, {user?.name || 'Dhanu'}
+                  </h2>
+                  <p className="text-xs text-slate-600 font-bold mt-1">Technician Dispatch Console</p>
+                </div>
+              ) : (
+                <div>
+                  <h2 className="text-xl font-extrabold text-slate-800 tracking-tight leading-tight">
+                    {activeMenu}
+                  </h2>
+                  <p className="text-xs text-slate-600 font-bold mt-1">Category: {selectedBusiness}</p>
+                </div>
+              )
             ) : location.pathname === '/executive/dashboard' ? (
               <div>
                 <h2 className="text-xl font-extrabold text-slate-800 tracking-tight leading-tight">

@@ -125,6 +125,25 @@ const staySlice = createSlice({
     addRoom: (state, action) => {
       state.rooms.push(action.payload);
     },
+    // Update a room
+    updateRoom: (state, action) => {
+      const { number, type, price, status, guest, checkout } = action.payload;
+      const index = state.rooms.findIndex(r => r.number === number);
+      if (index !== -1) {
+        state.rooms[index] = {
+          ...state.rooms[index],
+          type,
+          price,
+          status,
+          guest: (status === 'Available' || status === 'Cleaning' || status === 'Maintenance') ? null : guest,
+          checkout: (status === 'Available' || status === 'Cleaning' || status === 'Maintenance') ? null : checkout
+        };
+      }
+    },
+    // Delete a room
+    deleteRoom: (state, action) => {
+      state.rooms = state.rooms.filter(r => r.number !== action.payload);
+    },
   }
 });
 
@@ -138,6 +157,8 @@ export const {
   addBooking,
   assignHousekeepingStaff,
   addRoom,
+  updateRoom,
+  deleteRoom,
 } = staySlice.actions;
 
 export default staySlice.reducer;

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Plus, X, ChevronDown, Search, CheckCircle } from 'lucide-react';
-import { assignRoom, addRoom } from '../../../redux/slices/staySlice';
+import { Plus, X, ChevronDown, Search, CheckCircle, Edit, Trash2, Save, Info } from 'lucide-react';
+import { assignRoom, addRoom, updateRoom, deleteRoom } from '../../../redux/slices/staySlice';
 
 const RoomManagement = () => {
   const dispatch = useDispatch();
@@ -12,6 +12,15 @@ const RoomManagement = () => {
   const [floorFilter, setFloorFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [showAddRoomModal, setShowAddRoomModal] = useState(false);
+
+  // Room details / edit / delete state
+  const [selectedRoomForDetail, setSelectedRoomForDetail] = useState(null);
+  const [isEditingRoom, setIsEditingRoom] = useState(false);
+  const [editRoomType, setEditRoomType] = useState('');
+  const [editRoomStatus, setEditRoomStatus] = useState('');
+  const [editRoomPrice, setEditRoomPrice] = useState('');
+  const [editRoomGuest, setEditRoomGuest] = useState('');
+  const [editRoomCheckout, setEditRoomCheckout] = useState('');
 
   // Add Room form state
   const [newRoomNo, setNewRoomNo] = useState('');
@@ -50,6 +59,7 @@ const RoomManagement = () => {
     Occupied: rooms.filter(r => r.status === 'Occupied').length,
     Cleaning: rooms.filter(r => r.status === 'Cleaning').length,
     Maintenance: rooms.filter(r => r.status === 'Maintenance').length,
+    Reserved: rooms.filter(r => r.status === 'Reserved').length,
   };
 
   const filters = [
@@ -57,7 +67,8 @@ const RoomManagement = () => {
     { label: 'Available', count: counts.Available },
     { label: 'Occupied', count: counts.Occupied },
     { label: 'Cleaning', count: counts.Cleaning },
-    { label: 'Maintenance', count: counts.Maintenance }
+    { label: 'Maintenance', count: counts.Maintenance },
+    { label: 'Reserved', count: counts.Reserved }
   ];
 
   return (
@@ -152,18 +163,74 @@ const RoomManagement = () => {
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
         {rooms.filter(r => {
           const matchesFilter = activeFilter === 'All' || r.status === activeFilter;
+          const matchesFloor = floorFilter === 'all' || r.number.startsWith(floorFilter);
           const matchesSearch = r.number.includes(searchQuery) || r.type.toLowerCase().includes(searchQuery.toLowerCase());
-          return matchesFilter && matchesSearch;
+          return matchesFilter && matchesFloor && matchesSearch;
         }).map((r) => {
           const activeBooking = unassignedBookings.find(b => b.id === selectedBookingId);
           const canAssign = activeBooking && r.status === 'Available' && r.type === activeBooking.roomType;
           
-          let badgeStyle = 'bg-slate-50 text-slate-500 border-slate-150';
-          if (r.status === 'Occupied') badgeStyle = 'bg-blue-50 text-blue-600 border-blue-105';
-          else if (r.status === 'Available') badgeStyle = 'bg-emerald-50 text-emerald-700 border-emerald-105';
-          else if (r.status === 'Cleaning') badgeStyle = 'bg-amber-50 text-amber-700 border-amber-105';
-          else if (r.status === 'Maintenance') badgeStyle = 'bg-red-50 text-red-700 border-red-105';
-          else if (r.status === 'Reserved') badgeStyle = 'bg-yellow-50 text-yellow-700 border-yellow-105';
+          let cardStyle = {
+            bg: 'bg-white border-slate-105',
+            label: 'text-slate-455',
+            number: 'text-slate-805',
+            type: 'text-slate-450',
+            price: 'text-slate-805',
+            detail: 'text-slate-400',
+            badge: 'bg-slate-50 text-slate-500 border-slate-150'
+          };
+
+          if (r.status === 'Occupied') {
+            cardStyle = {
+              bg: 'bg-blue-50/75 border-blue-200/60 shadow-sm shadow-blue-50/50',
+              label: 'text-blue-600/70',
+              number: 'text-blue-900',
+              type: 'text-blue-700/80',
+              price: 'text-blue-900',
+              detail: 'text-blue-600/80',
+              badge: 'bg-blue-600 text-white border-blue-600'
+            };
+          } else if (r.status === 'Available') {
+            cardStyle = {
+              bg: 'bg-emerald-50/75 border-emerald-200/60 shadow-sm shadow-emerald-50/50',
+              label: 'text-emerald-600/70',
+              number: 'text-emerald-900',
+              type: 'text-emerald-700/80',
+              price: 'text-emerald-900',
+              detail: 'text-emerald-600/80',
+              badge: 'bg-emerald-600 text-white border-emerald-600'
+            };
+          } else if (r.status === 'Cleaning') {
+            cardStyle = {
+              bg: 'bg-orange-50/75 border-orange-200/60 shadow-sm shadow-orange-50/50',
+              label: 'text-orange-600/70',
+              number: 'text-orange-900',
+              type: 'text-orange-700/80',
+              price: 'text-orange-900',
+              detail: 'text-orange-600/80',
+              badge: 'bg-orange-500 text-white border-orange-500'
+            };
+          } else if (r.status === 'Maintenance') {
+            cardStyle = {
+              bg: 'bg-red-50/75 border-red-200/60 shadow-sm shadow-red-50/50',
+              label: 'text-red-600/70',
+              number: 'text-red-900',
+              type: 'text-red-700/80',
+              price: 'text-red-900',
+              detail: 'text-red-600/80',
+              badge: 'bg-red-600 text-white border-red-600'
+            };
+          } else if (r.status === 'Reserved') {
+            cardStyle = {
+              bg: 'bg-[#efebe9]/70 border-[#d7ccc8]/60 shadow-sm shadow-stone-100/50',
+              label: 'text-[#8d6e63]',
+              number: 'text-[#3e2723]',
+              type: 'text-[#5d4037]/80',
+              price: 'text-[#3e2723]',
+              detail: 'text-[#6d4c41]/80',
+              badge: 'bg-[#5d4037] text-white border-[#5d4037]'
+            };
+          }
 
           // Set detail text dynamically based on status
           let roomDetail = 'Ready for guests';
@@ -173,22 +240,37 @@ const RoomManagement = () => {
           else if (r.status === 'Maintenance') roomDetail = 'Under inspection';
 
           return (
-            <div key={r.number} className={`bg-white border p-5 rounded-2xl shadow-sm text-center flex flex-col justify-between h-52 hover:shadow-md transition-all ${canAssign ? 'border-blue-500 ring-2 ring-blue-500/20' : 'border-slate-105'}`}>
+            <div 
+              key={r.number} 
+              onClick={() => {
+                if (!canAssign) {
+                  setSelectedRoomForDetail(r);
+                  setIsEditingRoom(false);
+                  setEditRoomType(r.type);
+                  setEditRoomStatus(r.status);
+                  setEditRoomPrice(r.price.replace(/[^\d]/g, ''));
+                  setEditRoomGuest(r.guest || '');
+                  setEditRoomCheckout(r.checkout || '');
+                }
+              }}
+              className={`${cardStyle.bg} border p-5 rounded-2xl shadow-sm text-center flex flex-col justify-between h-52 hover:shadow-md transition-all cursor-pointer ${canAssign ? 'border-blue-500 ring-2 ring-blue-500/20' : ''}`}
+            >
               <div>
-                <span className="block text-[9px] text-slate-455 font-bold uppercase tracking-wider">Room</span>
-                <span className="text-xl font-bold text-slate-805 block leading-tight">{r.number}</span>
-                <span className="text-[10px] text-slate-450 font-semibold block mt-0.5">{r.type}</span>
+                <span className={`block text-[9px] font-bold uppercase tracking-wider ${cardStyle.label}`}>Room</span>
+                <span className={`text-xl font-bold block leading-tight ${cardStyle.number}`}>{r.number}</span>
+                <span className={`text-[10px] font-semibold block mt-0.5 ${cardStyle.type}`}>{r.type}</span>
               </div>
               
               <div className="my-2">
-                <span className="text-xs font-black text-slate-805">{r.price}</span>
-                <span className="text-[9px] text-slate-400 font-semibold"> / night</span>
-                <span className="block text-[9px] text-slate-400 font-medium mt-1 truncate">{roomDetail}</span>
+                <span className={`text-xs font-black ${cardStyle.price}`}>{r.price}</span>
+                <span className={`text-[9px] font-semibold ${cardStyle.detail}`}> / night</span>
+                <span className={`block text-[9px] font-medium mt-1 truncate ${cardStyle.detail}`}>{roomDetail}</span>
               </div>
 
               {canAssign ? (
                 <button
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.stopPropagation();
                     dispatch(assignRoom({ bookingId: selectedBookingId, roomNumber: r.number }));
                     setSelectedBookingId('');
                   }}
@@ -197,7 +279,7 @@ const RoomManagement = () => {
                   Assign Room
                 </button>
               ) : (
-                <span className={`text-[8.5px] font-extrabold uppercase mt-2.5 block py-1 border rounded-lg ${badgeStyle}`}>
+                <span className={`text-[8.5px] font-extrabold uppercase mt-2.5 block py-1 border rounded-lg ${cardStyle.badge}`}>
                   {r.status}
                 </span>
               )}
@@ -314,6 +396,204 @@ const RoomManagement = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── ROOM DETAILS / EDIT / DELETE MODAL ── */}
+      {selectedRoomForDetail && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl w-full max-w-md shadow-2xl border border-slate-100 overflow-hidden animate-scale-up">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-blue-600 to-indigo-700 p-5 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-white/20 rounded-2xl flex items-center justify-center">
+                  <Info className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-white text-sm">Room {selectedRoomForDetail.number} Details</h3>
+                  <p className="text-blue-100 text-[10px] font-semibold">
+                    {isEditingRoom ? 'Editing room configuration' : 'View, edit, or remove this room'}
+                  </p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setSelectedRoomForDetail(null)} 
+                className="text-white/70 hover:text-white transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {isEditingRoom ? (
+              /* EDIT FORM */
+              <form 
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  dispatch(updateRoom({
+                    number: selectedRoomForDetail.number,
+                    type: editRoomType,
+                    status: editRoomStatus,
+                    price: `₹${parseFloat(editRoomPrice.replace(/[^0-9]/g, '')).toLocaleString('en-IN')}`,
+                    guest: editRoomGuest || null,
+                    checkout: editRoomCheckout || null
+                  }));
+                  setSelectedRoomForDetail(null);
+                }} 
+                className="p-5 space-y-4 text-xs font-semibold text-slate-700"
+              >
+                <div className="space-y-3.5">
+                  {/* Room Type */}
+                  <div className="space-y-1">
+                    <label className="block text-[10px] font-bold text-slate-500 uppercase">Room Category</label>
+                    <select
+                      value={editRoomType}
+                      onChange={(e) => setEditRoomType(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-750 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    >
+                      <option value="Deluxe Room">Deluxe Room</option>
+                      <option value="Superior Room">Superior Room</option>
+                      <option value="Suite Room">Suite Room</option>
+                    </select>
+                  </div>
+
+                  {/* Price */}
+                  <div className="space-y-1">
+                    <label className="block text-[10px] font-bold text-slate-500 uppercase">Price per Night (₹)</label>
+                    <input
+                      type="text"
+                      required
+                      value={editRoomPrice}
+                      onChange={(e) => setEditRoomPrice(e.target.value)}
+                      placeholder="e.g. 3,200"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-750 focus:outline-none focus:ring-1 focus:ring-blue-500 font-bold"
+                    />
+                  </div>
+
+                  {/* Status */}
+                  <div className="space-y-1">
+                    <label className="block text-[10px] font-bold text-slate-500 uppercase">Current Status</label>
+                    <select
+                      value={editRoomStatus}
+                      onChange={(e) => setEditRoomStatus(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-750 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    >
+                      <option value="Available">Available</option>
+                      <option value="Occupied">Occupied</option>
+                      <option value="Cleaning">Cleaning</option>
+                      <option value="Maintenance">Maintenance</option>
+                      <option value="Reserved">Reserved</option>
+                    </select>
+                  </div>
+
+                  {/* Show Guest and Checkout fields if Occupied or Reserved */}
+                  {(editRoomStatus === 'Occupied' || editRoomStatus === 'Reserved') && (
+                    <>
+                      <div className="space-y-1 animate-fade-in">
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase">Guest Name</label>
+                        <input
+                          type="text"
+                          required
+                          value={editRoomGuest}
+                          onChange={(e) => setEditRoomGuest(e.target.value)}
+                          placeholder="Guest Full Name"
+                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-750 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        />
+                      </div>
+                      <div className="space-y-1 animate-fade-in">
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase">Checkout / Booking Dates</label>
+                        <input
+                          type="text"
+                          required
+                          value={editRoomCheckout}
+                          onChange={(e) => setEditRoomCheckout(e.target.value)}
+                          placeholder="e.g. 17 Jul"
+                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-750 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        />
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                <div className="flex gap-3 pt-3">
+                  <button
+                    type="button"
+                    onClick={() => setIsEditingRoom(false)}
+                    className="flex-1 border border-slate-200 text-slate-500 hover:bg-slate-50 font-bold py-2.5 rounded-xl transition-all text-xs"
+                  >
+                    Back to Details
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl transition-all shadow-md active:scale-95 text-xs flex items-center justify-center gap-1.5"
+                  >
+                    <Save className="h-4 w-4" /> Save Changes
+                  </button>
+                </div>
+              </form>
+            ) : (
+              /* DETAIL VIEW */
+              <div className="p-6 space-y-5 text-xs font-semibold text-slate-700">
+                <div className="space-y-3.5">
+                  <div className="flex justify-between border-b border-slate-100 pb-2">
+                    <span className="text-slate-400">Room Number</span>
+                    <span className="font-extrabold text-slate-800">{selectedRoomForDetail.number}</span>
+                  </div>
+                  <div className="flex justify-between border-b border-slate-100 pb-2">
+                    <span className="text-slate-400">Category</span>
+                    <span className="font-extrabold text-slate-850">{selectedRoomForDetail.type}</span>
+                  </div>
+                  <div className="flex justify-between border-b border-slate-100 pb-2">
+                    <span className="text-slate-400">Price / Night</span>
+                    <span className="font-extrabold text-slate-850">{selectedRoomForDetail.price}</span>
+                  </div>
+                  <div className="flex justify-between border-b border-slate-100 pb-2">
+                    <span className="text-slate-400">Status</span>
+                    <span className="font-extrabold text-slate-800">{selectedRoomForDetail.status}</span>
+                  </div>
+                  {selectedRoomForDetail.guest && (
+                    <div className="flex justify-between border-b border-slate-100 pb-2">
+                      <span className="text-slate-400">Guest</span>
+                      <span className="font-extrabold text-blue-600">{selectedRoomForDetail.guest}</span>
+                    </div>
+                  )}
+                  {selectedRoomForDetail.checkout && (
+                    <div className="flex justify-between border-b border-slate-100 pb-2">
+                      <span className="text-slate-400">Checkout / Dates</span>
+                      <span className="font-extrabold text-slate-700">{selectedRoomForDetail.checkout}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex flex-col gap-2 pt-2">
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => setIsEditingRoom(true)}
+                      className="flex-1 bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold py-2.5 rounded-xl transition-all text-xs flex items-center justify-center gap-1.5 border border-blue-100"
+                    >
+                      <Edit className="h-4 w-4" /> Edit Room
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (confirm(`Are you sure you want to delete Room ${selectedRoomForDetail.number}?`)) {
+                          dispatch(deleteRoom(selectedRoomForDetail.number));
+                          setSelectedRoomForDetail(null);
+                        }
+                      }}
+                      className="flex-1 bg-red-50 hover:bg-red-100 text-red-700 font-bold py-2.5 rounded-xl transition-all text-xs flex items-center justify-center gap-1.5 border border-red-100"
+                    >
+                      <Trash2 className="h-4 w-4" /> Delete Room
+                    </button>
+                  </div>
+                  <button
+                    onClick={() => setSelectedRoomForDetail(null)}
+                    className="w-full border border-slate-200 text-slate-500 hover:bg-slate-50 font-bold py-2.5 rounded-xl transition-all text-xs"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

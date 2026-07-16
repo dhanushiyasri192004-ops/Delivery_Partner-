@@ -8,8 +8,17 @@ const Buses = () => {
   // Add Bus form state
   const [busNo, setBusNo] = useState('');
   const [busName, setBusName] = useState('');
-  const [busType, setBusType] = useState('Volvo AC Sleeper');
+  const [busType, setBusType] = useState('AC Sleeper');
   const [seats, setSeats] = useState('54');
+  // Seater: left/right
+  const [seaterLeft, setSeaterLeft] = useState(15);
+  const [seaterRight, setSeaterRight] = useState(15);
+  // Sleeper lower: left/right
+  const [lowerLeft, setLowerLeft] = useState(6);
+  const [lowerRight, setLowerRight] = useState(6);
+  // Sleeper upper: left/right
+  const [upperLeft, setUpperLeft] = useState(6);
+  const [upperRight, setUpperRight] = useState(6);
   const [status, setStatus] = useState('Active');
   const [driver, setDriver] = useState('');
   const [addInsurance, setAddInsurance] = useState('2027-03-15');
@@ -22,8 +31,17 @@ const Buses = () => {
   const [showEditBusModal, setShowEditBusModal] = useState(false);
   const [editBusNo, setEditBusNo] = useState('');
   const [editBusName, setEditBusName] = useState('');
-  const [editBusType, setEditBusType] = useState('Volvo AC Sleeper');
+  const [editBusType, setEditBusType] = useState('AC Sleeper');
   const [editSeats, setEditSeats] = useState('54');
+  // Edit seater: left/right
+  const [editSeaterLeft, setEditSeaterLeft] = useState(15);
+  const [editSeaterRight, setEditSeaterRight] = useState(15);
+  // Edit sleeper lower: left/right
+  const [editLowerLeft, setEditLowerLeft] = useState(6);
+  const [editLowerRight, setEditLowerRight] = useState(6);
+  // Edit sleeper upper: left/right
+  const [editUpperLeft, setEditUpperLeft] = useState(6);
+  const [editUpperRight, setEditUpperRight] = useState(6);
   const [editStatus, setEditStatus] = useState('Active');
   const [editDriver, setEditDriver] = useState('');
   const [editInsurance, setEditInsurance] = useState('');
@@ -35,8 +53,10 @@ const Buses = () => {
     { 
       number: 'KA-01-AB-1234', 
       name: 'VRL Travels', 
-      type: 'Volvo AC Sleeper', 
-      seats: '54 Seats', 
+      type: 'AC Sleeper', 
+      seats: '30 Seats (15 Lower / 15 Upper)', 
+      lowerSleeperCap: 15,
+      upperSleeperCap: 15,
       status: 'Active',
       model: 'Volvo B9R (2022)',
       diesel: 82,
@@ -52,8 +72,10 @@ const Buses = () => {
     { 
       number: 'TN-37-GH-3456', 
       name: 'Royal Travels', 
-      type: 'Scania AC Sleeper', 
-      seats: '40 Seats', 
+      type: 'AC Sleeper', 
+      seats: '30 Seats (15 Lower / 15 Upper)', 
+      lowerSleeperCap: 15,
+      upperSleeperCap: 15,
       status: 'Active',
       model: 'Scania Metrolink (2023)',
       diesel: 75,
@@ -69,8 +91,11 @@ const Buses = () => {
     { 
       number: 'TN-45-CD-5678', 
       name: 'SRS Travels', 
-      type: 'Volvo AC Sleeper', 
-      seats: '36 Seats', 
+      type: 'AC Seater/Sleeper', 
+      seats: '54 Seats (30 Seater / 24 Sleeper: 12L / 12U)', 
+      seaterCap: 30,
+      lowerSleeperCap: 12,
+      upperSleeperCap: 12,
       status: 'Active',
       model: 'Volvo 9400 B11R',
       diesel: 60,
@@ -86,8 +111,9 @@ const Buses = () => {
     { 
       number: 'TN-35-IJ-7890', 
       name: 'National Travels', 
-      type: 'Semi Sleeper Non-AC', 
+      type: 'Non-AC Seater', 
       seats: '45 Seats', 
+      seaterCap: 45,
       status: 'Inactive',
       model: 'Tata LPO 1618',
       diesel: 15,
@@ -107,11 +133,37 @@ const Buses = () => {
   const handleAddBus = (e) => {
     e.preventDefault();
     if (!busNo) return;
+
+    let seatStr = '';
+    let total = 0;
+    if (['AC Sleeper', 'Non-AC Sleeper'].includes(busType)) {
+      const lowerTotal = Number(lowerLeft) + Number(lowerRight);
+      const upperTotal = Number(upperLeft) + Number(upperRight);
+      total = lowerTotal + upperTotal;
+      seatStr = `${total} Seats (Lower: ${lowerLeft}L + ${lowerRight}R / Upper: ${upperLeft}L + ${upperRight}R)`;
+    } else if (['AC Seater/Sleeper', 'Non-AC Seater/Sleeper'].includes(busType)) {
+      const seaterTotal = Number(seaterLeft) + Number(seaterRight);
+      const lowerTotal = Number(lowerLeft) + Number(lowerRight);
+      const upperTotal = Number(upperLeft) + Number(upperRight);
+      total = seaterTotal + lowerTotal + upperTotal;
+      seatStr = `${total} Seats (Seater: ${seaterLeft}L+${seaterRight}R / Lower: ${lowerLeft}L+${lowerRight}R / Upper: ${upperLeft}L+${upperRight}R)`;
+    } else if (['AC Seater', 'Non-AC Seater', 'Luxury / Semi-Luxury'].includes(busType)) {
+      const seaterTotal = Number(seaterLeft) + Number(seaterRight);
+      total = seaterTotal;
+      seatStr = `${total} Seats (${seaterLeft} Left / ${seaterRight} Right)`;
+    } else {
+      total = Number(seats);
+      seatStr = `${seats} Seats`;
+    }
+
     const newBus = { 
       number: busNo, 
       name: busName || 'VRL Travels', 
       type: busType, 
-      seats: `${seats} Seats`, 
+      seats: seatStr,
+      seaterLeft: Number(seaterLeft), seaterRight: Number(seaterRight),
+      lowerLeft: Number(lowerLeft), lowerRight: Number(lowerRight),
+      upperLeft: Number(upperLeft), upperRight: Number(upperRight),
       status,
       model: 'Volvo B9R (2022)',
       diesel: 100,
@@ -140,7 +192,13 @@ const Buses = () => {
     setEditBusNo(bus.number);
     setEditBusName(bus.name);
     setEditBusType(bus.type);
-    setEditSeats(bus.seats.replace(' Seats', ''));
+    setEditSeats(bus.seats ? bus.seats.split(' ')[0] : '54');
+    setEditSeaterLeft(bus.seaterLeft || 15);
+    setEditSeaterRight(bus.seaterRight || 15);
+    setEditLowerLeft(bus.lowerLeft || 6);
+    setEditLowerRight(bus.lowerRight || 6);
+    setEditUpperLeft(bus.upperLeft || 6);
+    setEditUpperRight(bus.upperRight || 6);
     setEditStatus(bus.status);
     setEditDriver(bus.driver);
     setEditInsurance(bus.insurance || '2027-03-15');
@@ -152,12 +210,37 @@ const Buses = () => {
 
   const handleSaveEditBus = (e) => {
     e.preventDefault();
+    let seatStr = '';
+    let total = 0;
+    if (['AC Sleeper', 'Non-AC Sleeper'].includes(editBusType)) {
+      const lowerTotal = Number(editLowerLeft) + Number(editLowerRight);
+      const upperTotal = Number(editUpperLeft) + Number(editUpperRight);
+      total = lowerTotal + upperTotal;
+      seatStr = `${total} Seats (Lower: ${editLowerLeft}L + ${editLowerRight}R / Upper: ${editUpperLeft}L + ${editUpperRight}R)`;
+    } else if (['AC Seater/Sleeper', 'Non-AC Seater/Sleeper'].includes(editBusType)) {
+      const seaterTotal = Number(editSeaterLeft) + Number(editSeaterRight);
+      const lowerTotal = Number(editLowerLeft) + Number(editLowerRight);
+      const upperTotal = Number(editUpperLeft) + Number(editUpperRight);
+      total = seaterTotal + lowerTotal + upperTotal;
+      seatStr = `${total} Seats (Seater: ${editSeaterLeft}L+${editSeaterRight}R / Lower: ${editLowerLeft}L+${editLowerRight}R / Upper: ${editUpperLeft}L+${editUpperRight}R)`;
+    } else if (['AC Seater', 'Non-AC Seater', 'Luxury / Semi-Luxury'].includes(editBusType)) {
+      const seaterTotal = Number(editSeaterLeft) + Number(editSeaterRight);
+      total = seaterTotal;
+      seatStr = `${total} Seats (${editSeaterLeft} Left / ${editSeaterRight} Right)`;
+    } else {
+      total = Number(editSeats);
+      seatStr = `${editSeats} Seats`;
+    }
+
     setBuses(prev => prev.map(b => b.number === selectedEditBus.number ? {
       ...b,
       number: editBusNo,
       name: editBusName,
       type: editBusType,
-      seats: `${editSeats} Seats`,
+      seats: seatStr,
+      seaterLeft: Number(editSeaterLeft), seaterRight: Number(editSeaterRight),
+      lowerLeft: Number(editLowerLeft), lowerRight: Number(editLowerRight),
+      upperLeft: Number(editUpperLeft), upperRight: Number(editUpperRight),
       status: editStatus,
       driver: editDriver,
       insurance: editInsurance,
@@ -305,15 +388,16 @@ const Buses = () => {
         ))}
       </div>
       {showAddBusModal && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl w-full max-w-md p-6 border border-slate-100 shadow-2xl space-y-4 animate-scale-in">
-            <div className="flex justify-between items-center pb-2 border-b border-slate-100">
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl w-full max-w-md border border-slate-100 shadow-2xl animate-scale-in flex flex-col my-4" style={{maxHeight: 'calc(100vh - 2rem)'}}>
+            <div className="flex justify-between items-center p-6 pb-3 border-b border-slate-100 flex-shrink-0">
               <h3 className="font-extrabold text-sm text-slate-805">Add New Bus</h3>
               <button onClick={() => setShowAddBusModal(false)} className="text-slate-400 hover:text-slate-600">
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <form onSubmit={handleAddBus} className="space-y-4 text-xs">
+            <div className="overflow-y-auto flex-1 px-6 pb-2">
+            <form id="add-bus-form" onSubmit={handleAddBus} className="space-y-4 text-xs py-3">
               <div className="space-y-1.5">
                 <label className="font-bold text-slate-700">Bus Number</label>
                 <input 
@@ -347,20 +431,111 @@ const Buses = () => {
                   className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium text-slate-800"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="font-bold text-slate-700">Bus Type</label>
-                  <select 
-                    value={busType}
-                    onChange={(e) => setBusType(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-blue-500 font-bold text-slate-700"
-                  >
-                    <option>Volvo AC Sleeper</option>
-                    <option>Scania AC Sleeper</option>
-                    <option>Sleeper Non-AC</option>
-                    <option>Semi Sleeper</option>
-                  </select>
+              <div className="space-y-1.5">
+                <label className="font-bold text-slate-700">Bus Type</label>
+                <select 
+                  value={busType}
+                  onChange={(e) => setBusType(e.target.value)}
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-blue-500 font-bold text-slate-700"
+                >
+                  <option>AC Seater</option>
+                  <option>Non-AC Seater</option>
+                  <option>AC Sleeper</option>
+                  <option>Non-AC Sleeper</option>
+                  <option>AC Seater/Sleeper</option>
+                  <option>Non-AC Seater/Sleeper</option>
+                  <option>Luxury / Semi-Luxury</option>
+                </select>
+              </div>
+
+              {/* Dynamic Seats Input based on Bus Type */}
+              {['AC Sleeper', 'Non-AC Sleeper'].includes(busType) ? (
+                <div className="space-y-2">
+                  <label className="font-bold text-[11px] text-slate-500 uppercase tracking-wider">Seat Layout</label>
+                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-2">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Lower Deck</p>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-slate-600">Left Side</label>
+                        <input type="number" value={lowerLeft} onChange={(e) => setLowerLeft(e.target.value)} placeholder="6" required className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium" />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-slate-600">Right Side</label>
+                        <input type="number" value={lowerRight} onChange={(e) => setLowerRight(e.target.value)} placeholder="6" required className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium" />
+                      </div>
+                    </div>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest pt-1">Upper Deck</p>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-slate-600">Left Side</label>
+                        <input type="number" value={upperLeft} onChange={(e) => setUpperLeft(e.target.value)} placeholder="6" required className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium" />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-slate-600">Right Side</label>
+                        <input type="number" value={upperRight} onChange={(e) => setUpperRight(e.target.value)} placeholder="6" required className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium" />
+                      </div>
+                    </div>
+                    <p className="text-[10px] text-slate-400 font-bold pt-1">Total: <span className="text-blue-600">{Number(lowerLeft) + Number(lowerRight) + Number(upperLeft) + Number(upperRight)} Seats</span></p>
+                  </div>
                 </div>
+              ) : ['AC Seater/Sleeper', 'Non-AC Seater/Sleeper'].includes(busType) ? (
+                <div className="space-y-2">
+                  <label className="font-bold text-[11px] text-slate-500 uppercase tracking-wider">Seat Layout</label>
+                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-2">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Seater Section</p>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-slate-600">Left Side</label>
+                        <input type="number" value={seaterLeft} onChange={(e) => setSeaterLeft(e.target.value)} placeholder="15" required className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium" />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-slate-600">Right Side</label>
+                        <input type="number" value={seaterRight} onChange={(e) => setSeaterRight(e.target.value)} placeholder="15" required className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium" />
+                      </div>
+                    </div>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest pt-1">Sleeper Lower Deck</p>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-slate-600">Left Side</label>
+                        <input type="number" value={lowerLeft} onChange={(e) => setLowerLeft(e.target.value)} placeholder="6" required className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium" />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-slate-600">Right Side</label>
+                        <input type="number" value={lowerRight} onChange={(e) => setLowerRight(e.target.value)} placeholder="6" required className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium" />
+                      </div>
+                    </div>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest pt-1">Sleeper Upper Deck</p>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-slate-600">Left Side</label>
+                        <input type="number" value={upperLeft} onChange={(e) => setUpperLeft(e.target.value)} placeholder="6" required className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium" />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-slate-600">Right Side</label>
+                        <input type="number" value={upperRight} onChange={(e) => setUpperRight(e.target.value)} placeholder="6" required className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium" />
+                      </div>
+                    </div>
+                    <p className="text-[10px] text-slate-400 font-bold pt-1">Total: <span className="text-blue-600">{Number(seaterLeft) + Number(seaterRight) + Number(lowerLeft) + Number(lowerRight) + Number(upperLeft) + Number(upperRight)} Seats</span></p>
+                  </div>
+                </div>
+              ) : ['AC Seater', 'Non-AC Seater', 'Luxury / Semi-Luxury'].includes(busType) ? (
+                <div className="space-y-2">
+                  <label className="font-bold text-[11px] text-slate-500 uppercase tracking-wider">Seat Layout</label>
+                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-2">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-slate-600">Left Side Seats</label>
+                        <input type="number" value={seaterLeft} onChange={(e) => setSeaterLeft(e.target.value)} placeholder="15" required className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium" />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-slate-600">Right Side Seats</label>
+                        <input type="number" value={seaterRight} onChange={(e) => setSeaterRight(e.target.value)} placeholder="15" required className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium" />
+                      </div>
+                    </div>
+                    <p className="text-[10px] text-slate-400 font-bold pt-1">Total: <span className="text-blue-600">{Number(seaterLeft) + Number(seaterRight)} Seats</span></p>
+                  </div>
+                </div>
+              ) : (
                 <div className="space-y-1.5">
                   <label className="font-bold text-slate-700">Seats Capacity</label>
                   <input 
@@ -372,7 +547,7 @@ const Buses = () => {
                     className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium"
                   />
                 </div>
-              </div>
+              )}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <label className="font-bold text-slate-700">Insurance Expiry</label>
@@ -428,27 +603,32 @@ const Buses = () => {
                   <option>Inactive</option>
                 </select>
               </div>
+            </form>
+            </div>
+            <div className="px-6 pb-5 pt-2 flex-shrink-0 border-t border-slate-100">
               <button 
+                form="add-bus-form"
                 type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-extrabold py-3 rounded-xl transition-all shadow-md active:scale-95 text-xs uppercase tracking-wider mt-2"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-extrabold py-3 rounded-xl transition-all shadow-md active:scale-95 text-xs uppercase tracking-wider"
               >
                 Create Bus Profile
               </button>
-            </form>
+            </div>
           </div>
         </div>
       )}
       {/* EDIT BUS MODAL */}
       {showEditBusModal && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl w-full max-w-md p-6 border border-slate-100 shadow-2xl space-y-4 animate-scale-in">
-            <div className="flex justify-between items-center pb-2 border-b border-slate-100">
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl w-full max-w-md border border-slate-100 shadow-2xl animate-scale-in flex flex-col my-4" style={{maxHeight: 'calc(100vh - 2rem)'}}>
+            <div className="flex justify-between items-center p-6 pb-3 border-b border-slate-100 flex-shrink-0">
               <h3 className="font-extrabold text-sm text-slate-805">Edit Bus Profile</h3>
               <button onClick={() => setShowEditBusModal(false)} className="text-slate-400 hover:text-slate-600">
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <form onSubmit={handleSaveEditBus} className="space-y-4 text-xs">
+            <div className="overflow-y-auto flex-1 px-6 pb-2">
+            <form id="edit-bus-form" onSubmit={handleSaveEditBus} className="space-y-4 text-xs py-3">
               <div className="space-y-1.5">
                 <label className="font-bold text-slate-700">Bus Number</label>
                 <input 
@@ -482,20 +662,111 @@ const Buses = () => {
                   className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium text-slate-800"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="font-bold text-slate-700">Bus Type</label>
-                  <select 
-                    value={editBusType}
-                    onChange={(e) => setEditBusType(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-blue-500 font-bold text-slate-700"
-                  >
-                    <option>Volvo AC Sleeper</option>
-                    <option>Scania AC Sleeper</option>
-                    <option>Sleeper Non-AC</option>
-                    <option>Semi Sleeper</option>
-                  </select>
+              <div className="space-y-1.5">
+                <label className="font-bold text-slate-700">Bus Type</label>
+                <select 
+                  value={editBusType}
+                  onChange={(e) => setEditBusType(e.target.value)}
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-blue-500 font-bold text-slate-700"
+                >
+                  <option>AC Seater</option>
+                  <option>Non-AC Seater</option>
+                  <option>AC Sleeper</option>
+                  <option>Non-AC Sleeper</option>
+                  <option>AC Seater/Sleeper</option>
+                  <option>Non-AC Seater/Sleeper</option>
+                  <option>Luxury / Semi-Luxury</option>
+                </select>
+              </div>
+
+              {/* Dynamic Seats Input based on Bus Type */}
+              {['AC Sleeper', 'Non-AC Sleeper'].includes(editBusType) ? (
+                <div className="space-y-2">
+                  <label className="font-bold text-[11px] text-slate-500 uppercase tracking-wider">Seat Layout</label>
+                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-2">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Lower Deck</p>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-slate-600">Left Side</label>
+                        <input type="number" value={editLowerLeft} onChange={(e) => setEditLowerLeft(e.target.value)} placeholder="6" required className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium" />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-slate-600">Right Side</label>
+                        <input type="number" value={editLowerRight} onChange={(e) => setEditLowerRight(e.target.value)} placeholder="6" required className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium" />
+                      </div>
+                    </div>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest pt-1">Upper Deck</p>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-slate-600">Left Side</label>
+                        <input type="number" value={editUpperLeft} onChange={(e) => setEditUpperLeft(e.target.value)} placeholder="6" required className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium" />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-slate-600">Right Side</label>
+                        <input type="number" value={editUpperRight} onChange={(e) => setEditUpperRight(e.target.value)} placeholder="6" required className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium" />
+                      </div>
+                    </div>
+                    <p className="text-[10px] text-slate-400 font-bold pt-1">Total: <span className="text-blue-600">{Number(editLowerLeft) + Number(editLowerRight) + Number(editUpperLeft) + Number(editUpperRight)} Seats</span></p>
+                  </div>
                 </div>
+              ) : ['AC Seater/Sleeper', 'Non-AC Seater/Sleeper'].includes(editBusType) ? (
+                <div className="space-y-2">
+                  <label className="font-bold text-[11px] text-slate-500 uppercase tracking-wider">Seat Layout</label>
+                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-2">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Seater Section</p>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-slate-600">Left Side</label>
+                        <input type="number" value={editSeaterLeft} onChange={(e) => setEditSeaterLeft(e.target.value)} placeholder="15" required className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium" />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-slate-600">Right Side</label>
+                        <input type="number" value={editSeaterRight} onChange={(e) => setEditSeaterRight(e.target.value)} placeholder="15" required className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium" />
+                      </div>
+                    </div>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest pt-1">Sleeper Lower Deck</p>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-slate-600">Left Side</label>
+                        <input type="number" value={editLowerLeft} onChange={(e) => setEditLowerLeft(e.target.value)} placeholder="6" required className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium" />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-slate-600">Right Side</label>
+                        <input type="number" value={editLowerRight} onChange={(e) => setEditLowerRight(e.target.value)} placeholder="6" required className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium" />
+                      </div>
+                    </div>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest pt-1">Sleeper Upper Deck</p>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-slate-600">Left Side</label>
+                        <input type="number" value={editUpperLeft} onChange={(e) => setEditUpperLeft(e.target.value)} placeholder="6" required className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium" />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-slate-600">Right Side</label>
+                        <input type="number" value={editUpperRight} onChange={(e) => setEditUpperRight(e.target.value)} placeholder="6" required className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium" />
+                      </div>
+                    </div>
+                    <p className="text-[10px] text-slate-400 font-bold pt-1">Total: <span className="text-blue-600">{Number(editSeaterLeft) + Number(editSeaterRight) + Number(editLowerLeft) + Number(editLowerRight) + Number(editUpperLeft) + Number(editUpperRight)} Seats</span></p>
+                  </div>
+                </div>
+              ) : ['AC Seater', 'Non-AC Seater', 'Luxury / Semi-Luxury'].includes(editBusType) ? (
+                <div className="space-y-2">
+                  <label className="font-bold text-[11px] text-slate-500 uppercase tracking-wider">Seat Layout</label>
+                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-2">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-slate-600">Left Side Seats</label>
+                        <input type="number" value={editSeaterLeft} onChange={(e) => setEditSeaterLeft(e.target.value)} placeholder="15" required className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium" />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-slate-600">Right Side Seats</label>
+                        <input type="number" value={editSeaterRight} onChange={(e) => setEditSeaterRight(e.target.value)} placeholder="15" required className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium" />
+                      </div>
+                    </div>
+                    <p className="text-[10px] text-slate-400 font-bold pt-1">Total: <span className="text-blue-600">{Number(editSeaterLeft) + Number(editSeaterRight)} Seats</span></p>
+                  </div>
+                </div>
+              ) : (
                 <div className="space-y-1.5">
                   <label className="font-bold text-slate-700">Seats Capacity</label>
                   <input 
@@ -507,7 +778,7 @@ const Buses = () => {
                     className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium"
                   />
                 </div>
-              </div>
+              )}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <label className="font-bold text-slate-700">Insurance Expiry</label>
@@ -563,13 +834,17 @@ const Buses = () => {
                   <option>Inactive</option>
                 </select>
               </div>
+            </form>
+            </div>
+            <div className="px-6 pb-5 pt-2 flex-shrink-0 border-t border-slate-100">
               <button 
+                form="edit-bus-form"
                 type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-extrabold py-3 rounded-xl transition-all shadow-md active:scale-95 text-xs uppercase tracking-wider mt-2"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-extrabold py-3 rounded-xl transition-all shadow-md active:scale-95 text-xs uppercase tracking-wider"
               >
                 Save Changes
               </button>
-            </form>
+            </div>
           </div>
         </div>
       )}
